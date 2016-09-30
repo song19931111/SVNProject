@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Kernel">
+      <UniqueIdentifier>{beb32c0a-607f-43ba-8f82-98142036e0ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetWork">
+      <UniqueIdentifier>{66a135e4-7db1-4c8d-b56d-f296f03376a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PackDef">
+      <UniqueIdentifier>{5159f107-990e-437d-b35f-97578334baeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Project">
+      <UniqueIdentifier>{560f117a-1cbe-4282-84a1-5803137845de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DB">
+      <UniqueIdentifier>{ae0f90f6-657a-4fd1-a9be-00aef96ec017}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PackDef\SM2S">
+      <UniqueIdentifier>{599a48bd-ddb5-40b2-ad0a-bb42438c613d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PackDef\C2S">
+      <UniqueIdentifier>{1a2d7ad2-8962-4221-9143-4558e9f22b1a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\PackDef\SM2S\SM2S.h">
+      <Filter>PackDef\SM2S</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PackDef\C2S\C2S.h">
+      <Filter>PackDef\C2S</Filter>
+    </ClInclude>
+    <ClInclude Include="NetWork\NetWork.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="Kernel\Kernel.h">
+      <Filter>Kernel</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Project\main.cpp">
+      <Filter>Project</Filter>
+    </ClCompile>
+    <ClCompile Include="NetWork\NetWork.cpp">
+      <Filter>NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="Kernel\Kernel.cpp">
+      <Filter>Kernel</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
