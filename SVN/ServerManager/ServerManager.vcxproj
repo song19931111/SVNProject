@@ -54,7 +54,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>./Kernel;./Project;./NetWork;../PackDef;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Kernel;./Project;./NetWork;../PackDef;../Common;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -80,12 +80,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Common\Common.h" />
+    <ClInclude Include="..\Common\LockQueue.h" />
+    <ClInclude Include="..\Common\MyLock.h" />
     <ClInclude Include="..\PackDef\C2S\C2S.h" />
     <ClInclude Include="..\PackDef\SM2S\SM2S.h" />
+    <ClInclude Include="DataSet\Group.h" />
+    <ClInclude Include="DataSet\Project.h" />
+    <ClInclude Include="DataSet\User.h" />
+    <ClInclude Include="DataSet\DataSet.h" />
     <ClInclude Include="Kernel\Kernel.h" />
     <ClInclude Include="NetWork\NetWork.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Common\LockQueue.cpp" />
+    <ClCompile Include="DataSet\Group.cpp" />
+    <ClCompile Include="DataSet\Project.cpp" />
+    <ClCompile Include="DataSet\User.cpp" />
     <ClCompile Include="Kernel\Kernel.cpp" />
     <ClCompile Include="NetWork\NetWork.cpp" />
     <ClCompile Include="Project\main.cpp" />

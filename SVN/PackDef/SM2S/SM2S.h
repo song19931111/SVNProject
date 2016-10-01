@@ -1,5 +1,5 @@
 #ifndef __INCLUDE__SM2S__H____
-
+#include "Common.h"
 #define DEF_SM2S_START (1000)
 #define DEF_SM2S_COUNT (1000)
 
@@ -49,9 +49,7 @@
 
 #define DEF_SMS_END (1000) DEF_SMS_START+DEF_SMS_COUNT
 
-#define DEF_PASS_LEN (100)
-#define DEF_GROUP_LEN (200)
-#define DEF_PRO_LEN (200)
+
 struct PACK_BASE{
 PACK_BASE(int nPackType):m_nPackSize(nPackType){}
 unsigned int m_nPackSize;
@@ -79,7 +77,7 @@ enum add_user_result{enum_add_success,enum_add_failed};
 struct STRU_ADD_USER_RS :public PACK_BASE{
 	static unsigned long lMinLength ; 
 	long m_lUserID;
-	int iResult; //结果
+	unsigned short  iResult; //结果
 	STRU_ADD_USER_RS():PACK_BASE(DEF_SM2S_ADD_USER_RS){};
 	long Seriaze(char szbuf[],long lBuflen)
 	{
@@ -108,7 +106,7 @@ struct STRU_DELETE_USER_RQ :public PACK_BASE{
 struct STRU_DELETE_USER_RS :public PACK_BASE{
 	static unsigned long lMinLength ; 
 	long m_lUserID;
-	int m_iResult;
+	unsigned short m_iResult;
 	STRU_DELETE_USER_RS():PACK_BASE(DEF_SM2S_DELETE_USER_RS){};
 	long Seriaze(char szbuf[],long lBuflen)
 	{
@@ -140,7 +138,7 @@ struct STRU_ADD_GROUP_RS :public PACK_BASE{
 	static unsigned long lMinLength ; 
 	long m_lGroupLen; 
 	char m_szGroup[DEF_GROUP_LEN];
-	int m_iResult;
+	unsigned short m_iResult;
 	STRU_ADD_GROUP_RS():PACK_BASE(DEF_SM2S_ADD_GROUP_RS){};
 	long Seriaze(char szbuf[],long lBuflen)
 	{
@@ -173,7 +171,7 @@ struct STRU_JOIN_GROUP_RS :public PACK_BASE{
 	static unsigned long lMinLength ; 
 	long m_iUserID;
 	long m_lGroupLen; 
-	int m_iResult ; 
+	unsigned short m_iResult ; 
 	char m_szGroup[DEF_GROUP_LEN];
 	
 	STRU_JOIN_GROUP_RS():PACK_BASE(DEF_SM2S_JOIN_GROUP_RS){};
@@ -206,7 +204,7 @@ struct STRU_DELETE_GROUP_RQ :public PACK_BASE{
 struct STRU_DELETE_GROUP_RS :public PACK_BASE{
 	static unsigned long lMinLength ; 
 	long m_lGroupLen; 
-	int m_iResult ; 
+	unsigned short m_iResult ; 
 	char m_szGroup[DEF_GROUP_LEN];
 	
 	STRU_DELETE_GROUP_RS():PACK_BASE(DEF_SM2S_DELETE_GROUP_RS){};
@@ -278,7 +276,7 @@ struct STRU_ADD_PRO_RQ :public PACK_BASE{
 struct STRU_ADD_PRO_RS :public PACK_BASE{
 	static unsigned long lMinLength ; 
 	long m_lProNameLen;
-	int m_iResult;
+	unsigned short m_iResult;
 	char m_szProName[DEF_PRO_LEN];
 	
 	STRU_ADD_PRO_RS():PACK_BASE(DEF_SM2S_ADD_PRO_RS){};
@@ -313,7 +311,7 @@ struct STRU_DELETE_PRO_RQ :public PACK_BASE{
 struct STRU_DELETE_PRO_RS :public PACK_BASE{
 	static unsigned long lMinLength ; 
 	long m_lProNameLen;
-	int m_iResult;
+	unsigned short m_iResult;
 	char m_szProName[DEF_PRO_LEN];
 	
 	STRU_DELETE_PRO_RS():PACK_BASE(DEF_SM2S_DELETE_PRO_RS){};
@@ -348,7 +346,7 @@ struct STRU_JOIN_PRO_RS :public PACK_BASE{
 	static unsigned long lMinLength ; 
 	long m_lUserID;
 	long m_lProNameLen;
-	int m_iResult; 
+	unsigned short m_iResult; 
 	char m_szProName[DEF_PRO_LEN];
 	
 	STRU_JOIN_PRO_RS():PACK_BASE(DEF_SM2S_JOIN_PRO_RS){};
@@ -383,7 +381,7 @@ struct STRU_LEAVE_PRO_RS :public PACK_BASE{
 	static unsigned long lMinLength ; 
 	long m_lUserID;
 	long m_lProNameLen;
-	int m_iResult; 
+	unsigned short m_iResult; 
 	char m_szProName[DEF_PRO_LEN];
 	
 	STRU_LEAVE_PRO_RS():PACK_BASE(DEF_SM2S_LEAVE_PRO_RS){};
@@ -399,7 +397,7 @@ struct STRU_LEAVE_PRO_RS :public PACK_BASE{
 
 
 /////////////////////////////////设置权限项目/////////////////////////////////////////////////////////////////
-enum power_type{enum_only_read,enum_read_wirte,enum_not_accept};
+
 
 struct STRU_SET_POWER_RQ :public PACK_BASE{
 	static unsigned long lMinLength ; 
@@ -423,7 +421,7 @@ struct STRU_SET_POWER_RS :public PACK_BASE{
 	long m_lUserID;
 	long m_lGroupLen;
 	long m_lProNameLen;
-	int m_iResult; 
+	unsigned short m_iResult; 
 	char m_szProName[DEF_PRO_LEN];
 	char m_szGroup[DEF_GROUP_LEN];
 	STRU_SET_POWER_RS():PACK_BASE(DEF_SM2S_SET_POWER_RS){};

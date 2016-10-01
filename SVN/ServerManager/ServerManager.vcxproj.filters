@@ -22,6 +22,12 @@
     <Filter Include="PackDef\C2S">
       <UniqueIdentifier>{1a2d7ad2-8962-4221-9143-4558e9f22b1a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{2125c781-a336-4f99-b117-4bb9a2cce1e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataSet">
+      <UniqueIdentifier>{16ca0433-b48a-4c9a-841c-6b5093016f76}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PackDef\SM2S\SM2S.h">
@@ -36,6 +42,27 @@
     <ClInclude Include="Kernel\Kernel.h">
       <Filter>Kernel</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\Common.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\LockQueue.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\MyLock.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="DataSet\DataSet.h">
+      <Filter>DataSet</Filter>
+    </ClInclude>
+    <ClInclude Include="DataSet\User.h">
+      <Filter>DataSet</Filter>
+    </ClInclude>
+    <ClInclude Include="DataSet\Project.h">
+      <Filter>DataSet</Filter>
+    </ClInclude>
+    <ClInclude Include="DataSet\Group.h">
+      <Filter>DataSet</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Project\main.cpp">
@@ -46,6 +73,18 @@
     </ClCompile>
     <ClCompile Include="Kernel\Kernel.cpp">
       <Filter>Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\LockQueue.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="DataSet\User.cpp">
+      <Filter>DataSet</Filter>
+    </ClCompile>
+    <ClCompile Include="DataSet\Project.cpp">
+      <Filter>DataSet</Filter>
+    </ClCompile>
+    <ClCompile Include="DataSet\Group.cpp">
+      <Filter>DataSet</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
