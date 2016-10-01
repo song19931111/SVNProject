@@ -18,6 +18,10 @@ public :
 	{
 		memset(m_szProName,0,sizeof(m_szProName));
 	}
+	void SetProPower( unsigned short ePower )
+	{
+		m_ePower  =ePower;
+	}
 	void SetProName(char *pProName)
 	{
 		if( NULL == pProName )

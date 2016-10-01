@@ -12,7 +12,7 @@ public  :
 	unsigned short m_ePower ;
 	unsigned long m_lGroupID;
 	USERSET m_userSet ;
-	
+
 public :
 	
 	CGroup()
@@ -22,10 +22,6 @@ public :
 		m_ePower =  0;
 	}
 	
-	void SetPower(power_type ePower)
-	{
-		m_ePower = ePower;
-	}
 	bool  JoinGroup( unsigned long m_lUserID )
 	{
 			//¼ÓÈë×é
@@ -48,5 +44,18 @@ public :
 		}
 		return false ;
 	}
+	void SetGroupName( char *pGroupName )
+	{
+		if( NULL ==  pGroupName )
+		{
+			return;
+		}
+		strcpy(m_szGroupName,pGroupName);
+	}
+	void SetGroupPower( unsigned short ePower )
+	{
+		m_ePower  =ePower;
+	}
+	
 };
 #endif  //____INCLUDE__GROUP__H____

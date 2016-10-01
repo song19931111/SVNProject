@@ -10,7 +10,7 @@ private :
 	char m_szPassword[DEF_PASS_LEN];
 	unsigned short m_ePower ;
 public :
-	void SetPower( power_type eType )
+	void SetPower( unsigned short  eType )
 	{
 		m_ePower = eType;
 	}
@@ -21,6 +21,14 @@ public :
 	unsigned long  GetUSerID(   )
 	{
 		return m_lUserID;
+	}
+	void SetPassword(char *pPassword)
+	{
+		if ( NULL == pPassword )
+		{
+			return; 
+		}
+		strcpy(m_szPassword,pPassword);
 	}
 };
 #endif 

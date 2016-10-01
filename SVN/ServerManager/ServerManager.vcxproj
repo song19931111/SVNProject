@@ -94,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Common\LockQueue.cpp" />
+    <ClCompile Include="DataSet\DataSet.cpp" />
     <ClCompile Include="DataSet\Group.cpp" />
     <ClCompile Include="DataSet\Project.cpp" />
     <ClCompile Include="DataSet\User.cpp" />
