@@ -18,9 +18,21 @@ public :
 	{
 		memset(m_szProName,0,sizeof(m_szProName));
 	}
-	void SetProPower( unsigned short ePower )
+	bool SetProPower( unsigned long m_lID, unsigned short ePower )
 	{
-		m_ePower  =ePower;
+		PRO_USERLIST::iterator ite  = m_setUserList.begin();
+		while( ite != m_setUserList.end() )
+		{
+			if ( (unsigned long )(*ite) == m_lID )
+			{
+				int  value =  ( unsigned long  )m_lID + ePower<<32;
+				m_setUserList.erase(ite);
+				m_setUserList.insert(value);
+				return true; 
+			}
+			ite++;
+		}
+		return false;
 	}
 	void SetProName(char *pProName)
 	{

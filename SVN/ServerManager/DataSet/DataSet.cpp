@@ -119,3 +119,89 @@ bool CDataSet::DelPro(unsigned int m_lProID)
 	return false; 
 }
 
+CUser * CDataSet::GetUser( unsigned long m_lUserID)
+{
+	MAP_ID_USER::iterator ite  ;
+	if ( ( ite = m_mp_user.find( m_lUserID ) ) ==m_mp_user.end() )
+	{
+		return NULL;
+	}
+	return ite->second; 
+}
+CProject * CDataSet:: GetProject( unsigned long m_lProID )
+{
+	MAP_ID_PRO::iterator ite  ;
+	if ( ( ite = m_mp_pro.find( m_lProID ) ) ==m_mp_pro.end() )
+	{
+		return NULL;
+	}
+	return ite->second; 
+}
+CGroup *CDataSet:: GetGroup( unsigned long m_lGroupID )
+{
+		MAP_ID_GROUP::iterator ite  ;
+	if ( ( ite = m_mp_group.find( m_lGroupID ) ) ==m_mp_group.end() )
+	{
+		return NULL;
+	}
+	return ite->second; 
+}
+bool CDataSet::SetUserPower( unsigned long m_lUserID , unsigned short ePower  )
+{
+	 CUser * pUser =  GetUser(m_lUserID) ;
+	 if  ( NULL == pUser ) 
+	 {
+		return false ;
+	 }
+	 pUser->SetPower(ePower);
+	 return true; 
+}
+bool CDataSet::SetGroupPower( unsigned long m_lGroupID , unsigned short ePower  )
+{
+	 CGroup * pGroup =  GetGroup(m_lGroupID) ;
+	 if  ( NULL == pGroup ) 
+	 {
+		return false ;
+	 }
+	 pGroup->SetGroupPower(ePower);
+	 return true; 
+}
+bool CDataSet::SetProPower(unsigned long  m_lProID, unsigned long m_lUserID , unsigned short ePower  )\
+{
+		//找到项目:
+	CProject * pProject =  GetProject(m_lProID);
+	if ( NULL == pProject )
+	{
+		return false;
+	}
+	return pProject->SetProPower(m_lUserID,ePower);
+}
+bool CDataSet::InitDataSet( int iMaxCount  )   //最大的内存池个数
+{
+	//初始化队列:
+	if ( false == UnInitDataSet(  ))
+	{
+		return false; 
+	}
+	m_index_user.InitQueue( iMaxCount );
+	m_index_group.InitQueue( iMaxCount ) ;
+	m_index_pro.InitQueue( iMaxCount ) ;
+	//建立内存池
+	m_pUser  =new CUser[ iMaxCount ]; 
+	m_pGroup  =new CGroup[ iMaxCount ]; 
+	m_pPro  =new CProject[ iMaxCount ]; 
+	return true;
+}
+bool CDataSet::UnInitDataSet(  )
+{
+	m_index_user.UnInitQueue(  );
+	m_index_group.UnInitQueue(  ) ;
+	m_index_pro.UnInitQueue(  ) ;
+
+	delete [] m_pUser;
+	m_pUser = NULL;
+	delete [] m_pGroup;
+	m_pGroup = NULL; 
+	delete [] m_pPro;
+	m_pPro  = NULL;
+}
