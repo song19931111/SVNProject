@@ -20,7 +20,7 @@ bool CDataSet::AddUser( unsigned long m_lUserID,char *pPassword,unsigned short e
 		return false; 
 	}
 	m_pUser[iIndex].SetUserID(m_lUserID);
-	m_pUser[iIndex].SetPower(ePower);
+//	m_pUser[iIndex].SetPower(ePower);
 	m_pUser[iIndex].SetPassword(pPassword);
 	m_mp_user[m_lUserID]  = & m_pUser[iIndex];
 		
@@ -46,7 +46,7 @@ bool  CDataSet::AddGroup( unsigned long m_lGroupID,char *pGroupName, unsigned sh
 		return false; 
 	}
 	m_pGroup[iIndex].SetGroupName(pGroupName);
-	m_pGroup[iIndex].SetGroupPower(ePower);
+	//m_pGroup[iIndex].SetGroupPower(ePower);
 	m_mp_group[m_lGroupID]  = & m_pGroup[iIndex];
 	return true;
 }	
@@ -146,26 +146,26 @@ CGroup *CDataSet:: GetGroup( unsigned long m_lGroupID )
 	}
 	return ite->second; 
 }
-bool CDataSet::SetUserPower( unsigned long m_lUserID , unsigned short ePower  )
-{
-	 CUser * pUser =  GetUser(m_lUserID) ;
-	 if  ( NULL == pUser ) 
-	 {
-		return false ;
-	 }
-	 pUser->SetPower(ePower);
-	 return true; 
-}
-bool CDataSet::SetGroupPower( unsigned long m_lGroupID , unsigned short ePower  )
-{
-	 CGroup * pGroup =  GetGroup(m_lGroupID) ;
-	 if  ( NULL == pGroup ) 
-	 {
-		return false ;
-	 }
-	 pGroup->SetGroupPower(ePower);
-	 return true; 
-}
+//bool CDataSet::SetUserPower( unsigned long m_lUserID , unsigned short ePower  )
+//{
+//	 CUser * pUser =  GetUser(m_lUserID) ;
+//	 if  ( NULL == pUser ) 
+//	 {
+//		return false ;
+//	 }
+//	 pUser->SetPower(ePower);
+//	 return true; 
+//}
+//bool CDataSet::SetGroupPower( unsigned long m_lGroupID , unsigned short ePower  )
+//{
+//	 CGroup * pGroup =  GetGroup(m_lGroupID) ;
+//	 if  ( NULL == pGroup ) 
+//	 {
+//		return false ;
+//	 }
+//	 pGroup->SetGroupPower(ePower);
+//	 return true; 
+//}
 bool CDataSet::SetProPower(unsigned long  m_lProID, unsigned long m_lUserID , unsigned short ePower  )\
 {
 		//找到项目:
@@ -190,6 +190,14 @@ bool CDataSet::InitDataSet( int iMaxCount  )   //最大的内存池个数
 	m_pUser  =new CUser[ iMaxCount ]; 
 	m_pGroup  =new CGroup[ iMaxCount ]; 
 	m_pPro  =new CProject[ iMaxCount ]; 
+	//投入索引:
+	for( int i=0;i<iMaxCount;i++ )
+	{
+		m_index_user.Push(i);
+		m_index_group.Push(i);
+		m_index_pro.Push(i);
+	}
+
 	return true;
 }
 bool CDataSet::UnInitDataSet(  )

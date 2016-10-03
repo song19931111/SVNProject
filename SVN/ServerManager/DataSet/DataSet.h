@@ -33,8 +33,8 @@ public :
 	CUser * GetUser( unsigned long m_lUserID);
 	CProject *  GetProject( unsigned long m_lProID );
 	CGroup * GetGroup( unsigned long m_lGroup );
-	bool SetUserPower( unsigned long m_lUserID , unsigned short ePower  );
-	bool SetGroupPower( unsigned long m_lGroupID , unsigned short ePower  );
+	//bool SetUserPower( unsigned long m_lUserID , unsigned short ePower  );
+	//bool SetGroupPower( unsigned long m_lGroupID , unsigned short ePower  );
 	bool SetProPower(unsigned long  m_lProID, unsigned long m_lUserID , unsigned short ePower  );
 	bool InitDataSet( int iMaxCount  )  ; //最大的内存池个数
 	bool UnInitDataSet(  );

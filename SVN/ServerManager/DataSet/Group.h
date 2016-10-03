@@ -9,7 +9,7 @@ class CGroup{
 public  :
 	unsigned long m_lGroupLen ;
 	char m_szGroupName[DEF_GROUP_LEN];
-	unsigned short m_ePower ;
+	//unsigned short m_ePower ;
 	unsigned long m_lGroupID;
 	USERSET m_userSet ;
 
@@ -52,10 +52,10 @@ public :
 		}
 		strcpy(m_szGroupName,pGroupName);
 	}
-	void SetGroupPower( unsigned short ePower )
+	/*void SetGroupPower( unsigned short ePower )
 	{
 		m_ePower  =ePower;
-	}
+	}*/
 	
 };
 #endif  //____INCLUDE__GROUP__H____

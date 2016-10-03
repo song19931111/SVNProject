@@ -8,12 +8,12 @@ private :
 private :
 	unsigned long m_lPassLen;
 	char m_szPassword[DEF_PASS_LEN];
-	unsigned short m_ePower ;
+	//unsigned short m_ePower ;
 public :
-	void SetPower( unsigned short  eType )
+	/*void SetPower( unsigned short  eType )
 	{
 		m_ePower = eType;
-	}
+	}*/
 	void SetUserID(unsigned long lUserID)
 	{
 		m_lUserID = lUserID;

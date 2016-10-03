@@ -36,9 +36,6 @@
     <ClInclude Include="..\PackDef\C2S\C2S.h">
       <Filter>PackDef\C2S</Filter>
     </ClInclude>
-    <ClInclude Include="NetWork\NetWork.h">
-      <Filter>NetWork</Filter>
-    </ClInclude>
     <ClInclude Include="Kernel\Kernel.h">
       <Filter>Kernel</Filter>
     </ClInclude>
@@ -63,13 +60,16 @@
     <ClInclude Include="DataSet\Group.h">
       <Filter>DataSet</Filter>
     </ClInclude>
+    <ClInclude Include="NetWork\INet.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="NetWork\TCPNet.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Project\main.cpp">
       <Filter>Project</Filter>
-    </ClCompile>
-    <ClCompile Include="NetWork\NetWork.cpp">
-      <Filter>NetWork</Filter>
     </ClCompile>
     <ClCompile Include="Kernel\Kernel.cpp">
       <Filter>Kernel</Filter>
@@ -88,6 +88,9 @@
     </ClCompile>
     <ClCompile Include="DataSet\DataSet.cpp">
       <Filter>DataSet</Filter>
+    </ClCompile>
+    <ClCompile Include="NetWork\TCPNet.cpp">
+      <Filter>NetWork</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
