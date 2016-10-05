@@ -2,12 +2,15 @@
 #ifndef ____INCLUDE__TCPNET__H____
 #define ____INCLUDE__TCPNET__H____
 #include "INet.h"
+#include "MyLock.h"
 #include <map>
 #include <process.h>
+#include "Common.h"
 using namespace std;
 typedef map<SOCKET,STRU_SESSION *> MAP_SESSION;
 #define DEF_MAX_RECV_BUF (2048) 
-#define DEF_PORT (12345)
+
+
 class CTCPNet : public INet{
 	CTCPNet():m_bRun(true),m_iThreadCount(0)
 	{
@@ -29,7 +32,9 @@ private :
 	int m_iThreadCount ; 
 	SOCKET  m_listenSocket ;
 	MAP_SESSION m_mp_socket_session;
+	MyLock m_lock;
 	char m_szRecvBuf [DEF_MAX_RECV_BUF] ;
+	bool RemoveSession( SOCKET socket  );
 	
 };
 #endif //____INCLUDE__TCPNET__H____

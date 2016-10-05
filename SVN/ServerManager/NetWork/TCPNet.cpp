@@ -2,11 +2,13 @@
 
 bool CTCPNet::InnerInitNet()
 {
+	WSADATA wsaData;
+    int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	m_listenSocket = socket(AF_INET,SOCK_STREAM,0);
 	sockaddr_in addr; 
 	addr.sin_family  =AF_INET;
 	addr.sin_addr.S_un.S_addr = GetHostIP();
-	addr.sin_port = DEF_PORT;
+	addr.sin_port = htons( DEF_TCP_PORT ) ;
 	int ret; 
 	ret = bind(m_listenSocket,( sockaddr * )&addr,sizeof(addr));
 	if ( ret == SOCKET_ERROR )
@@ -23,13 +25,17 @@ bool CTCPNet::InnerInitNet()
 }
 bool CTCPNet::Init( INotify *pNotify )
 {
-	UnInit();
+	if( false == UnInit() )
+	{
+		return false ;
+	}
 	if (false == InnerInitNet())
 	{
 		return false; 
 	}
 	m_pNotify = pNotify;
 	//开启线程
+	m_bRun = true; 
 	HANDLE handle =  ( HANDLE )_beginthreadex(NULL,0,AcceptProc,this,0,NULL);
 	if ( handle != NULL )
 	{
@@ -55,17 +61,23 @@ bool CTCPNet::UnInit()
 	m_bRun  =false ;
 	while ( m_iThreadCount != 0  )
 	{
-		Sleep(100);
+		Sleep(1);
 	}
 	//清空map:
 	MAP_SESSION::iterator ite  =  m_mp_socket_session.begin();
 	while( ite != m_mp_socket_session.end()  )
 	{
-		delete ite->second;
+		delete (STRU_SESSION * )ite->second;
 		ite++;
 	}
 	m_mp_socket_session.clear();
-	closesocket(m_listenSocket);
+	
+	if ( m_listenSocket )
+	{
+		closesocket(m_listenSocket);
+		m_listenSocket = NULL;
+		WSACleanup();
+	}
 	return true ;
 }
  unsigned int _stdcall CTCPNet::AcceptProc( void * pParam ) 
@@ -88,8 +100,10 @@ bool CTCPNet::UnInit()
 		else
 		{
 			STRU_SESSION *pSession;  
-			pSession->m_sock =  ret ;
+			pSession->m_sock =  ret ;		
+			pThis->m_lock.Lock();
 			pThis ->m_mp_socket_session[ ret ] =pSession;
+			pThis->m_lock.UnLock();
 		}
 		
 	
@@ -112,15 +126,22 @@ bool CTCPNet::UnInit()
 			FD_ZERO(&fd_read);
 			//加入待检测的结合:
 			bool IsHavaClient  = false; 
-			MAP_SESSION::iterator ite   = pThis->m_mp_socket_session.begin();
-			while ( ite != pThis->m_mp_socket_session.end() )
+			MAP_SESSION::iterator ite_map ; 
+			
+			MAP_SESSION mp_copy; 
+			pThis->m_lock.Lock();
+			//拷贝一份map ,用空间去换减少锁的粒度
+			mp_copy = pThis->m_mp_socket_session;
+			pThis->m_lock.UnLock();
+			while ( ite_map != mp_copy.end() )
 			{
 				IsHavaClient = true  ;
 				//加入集合
-				FD_SET(ite->first,&fd_read);
+				FD_SET(ite_map->first,&fd_read);
 
-				ite ++; 
+				ite_map ++; 
 			}
+			
 			if ( !IsHavaClient )
 			{
 				continue ;
@@ -135,33 +156,66 @@ bool CTCPNet::UnInit()
 				break;
 			 }
 			 else
-			 {
-					while ( ite != pThis->m_mp_socket_session.end() )
+			 {				 
+				 ite_map   = mp_copy.begin();
+					while ( ite_map != mp_copy.end() )
 				{
 				
 					//检测集合是否发生了recv :
-					if ( FD_ISSET(ite->first,&fd_read) )
+					if ( FD_ISSET(ite_map->first,&fd_read) > 0 )
 					{
-						int nRecv = recv(ite->first,pThis->m_szRecvBuf,sizeof( m_szRecvBuf ),0);
+						int nRecv = recv(ite_map->first,pThis->m_szRecvBuf,sizeof( m_szRecvBuf ),0);
 						if ( SOCKET_ERROR == nRecv || 0 == nRecv  )
 						{
-							//从map中移除::
-							ite = pThis->m_mp_socket_session.erase(ite);
+							//从map中移除::	
+							pThis->RemoveSession(ite_map->first);
+							
 						}
 						else 
 						{
 							if ( pThis->m_pNotify )
 							{
-								pThis->m_pNotify->NotiftyRecvData(ite->first,pThis->m_szRecvBuf,nRecv);
+								pThis->m_pNotify->NotiftyRecvData(ite_map->second,pThis->m_szRecvBuf,nRecv);
 								memset(pThis ->m_szRecvBuf,0,DEF_MAX_RECV_BUF);
 							}
+							
 						}
 					}
-						ite++;
+
+						ite_map ++ ;	
 				}
-			 
 			 }
 		}
 
 		InterlockedDecrement(( long * )&pThis->m_iThreadCount);
+		return 1L;
  }
+ bool  CTCPNet::RemoveSession( SOCKET socket  )
+ {
+	 m_lock.Lock();
+	 MAP_SESSION::iterator ite  = m_mp_socket_session.find(socket);
+	 if( ite ==m_mp_socket_session.end()  )   
+	 {
+		m_lock.UnLock();
+		return false ;
+	 }
+	 delete (STRU_SESSION * )ite->second;
+	 ite = m_mp_socket_session.erase(ite);
+	 m_lock.UnLock();
+	 return true ;
+ }
+  long CTCPNet::GetHostIP()
+  {
+	  unsigned long lValidIP =inet_addr("127.0.0.1"); 
+	  char szHostName[255];
+	  if ( 0 != gethostname(szHostName,sizeof( szHostName ) ) ) 
+	  {
+		 //无法获取到主机名:
+		  return lValidIP;
+	  }
+	  hostent * pHostNet  = gethostbyname(szHostName);
+	  if (pHostNet->h_addr_list [ 0 ] !=NULL && pHostNet->h_length == 4  )
+	  {
+		return  * ( long * )pHostNet->h_addr_list [ 0 ];
+	  }
+  }

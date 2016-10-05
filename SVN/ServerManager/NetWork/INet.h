@@ -4,12 +4,14 @@
 #include <WinSock2.h>
 #pragma comment(lib,"ws2_32.lib")
 struct STRU_SESSION{
+	long long  m_sock ;
 	long m_data ;
-	SOCKET m_sock ;
+	//在UDP中 m_sock高32位存放IP，低16位存放端口
+	//在TCP中,m_sock低32位存放套接字socket 
 };
 class INotify{
 public :
-virtual void NotiftyRecvData(  SOCKET socket ,char szbuf[],long lBuflen ) = 0  ;
+	virtual void NotiftyRecvData(  STRU_SESSION  *pSession ,char szbuf[],long lBuflen ) = 0  ;
 
 };
 

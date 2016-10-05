@@ -66,6 +66,9 @@
     <ClInclude Include="NetWork\TCPNet.h">
       <Filter>NetWork</Filter>
     </ClInclude>
+    <ClInclude Include="NetWork\UDPNet.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Project\main.cpp">
@@ -90,6 +93,9 @@
       <Filter>DataSet</Filter>
     </ClCompile>
     <ClCompile Include="NetWork\TCPNet.cpp">
+      <Filter>NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="NetWork\UDPNet.cpp">
       <Filter>NetWork</Filter>
     </ClCompile>
   </ItemGroup>

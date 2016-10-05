@@ -92,6 +92,7 @@
     <ClInclude Include="Kernel\Kernel.h" />
     <ClInclude Include="NetWork\INet.h" />
     <ClInclude Include="NetWork\TCPNet.h" />
+    <ClInclude Include="NetWork\UDPNet.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Common\LockQueue.cpp" />
@@ -101,6 +102,7 @@
     <ClCompile Include="DataSet\User.cpp" />
     <ClCompile Include="Kernel\Kernel.cpp" />
     <ClCompile Include="NetWork\TCPNet.cpp" />
+    <ClCompile Include="NetWork\UDPNet.cpp" />
     <ClCompile Include="Project\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
