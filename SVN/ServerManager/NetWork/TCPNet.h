@@ -12,6 +12,7 @@ typedef map<SOCKET,STRU_SESSION *> MAP_SESSION;
 
 
 class CTCPNet : public INet{
+public :
 	CTCPNet():m_bRun(true),m_iThreadCount(0)
 	{
 	
@@ -35,6 +36,14 @@ private :
 	MyLock m_lock;
 	char m_szRecvBuf [DEF_MAX_RECV_BUF] ;
 	bool RemoveSession( SOCKET socket  );
+	bool Close()
+	{
+		return this->UnInit();
+	}
 	
+	bool NofityNetDisconnet( STRU_SESSION *pSession  ) 
+	{
+		return this->RemoveSession( pSession->m_sock);
+	}
 };
 #endif //____INCLUDE__TCPNET__H____

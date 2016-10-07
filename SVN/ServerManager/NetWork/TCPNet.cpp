@@ -175,7 +175,7 @@ bool CTCPNet::UnInit()
 						{
 							if ( pThis->m_pNotify )
 							{
-								pThis->m_pNotify->NotiftyRecvData(ite_map->second,pThis->m_szRecvBuf,nRecv);
+								pThis->m_pNotify->NotiftyRecvData(ite_map->second,pThis->m_szRecvBuf,nRecv,enum_tcp_type);
 								memset(pThis ->m_szRecvBuf,0,DEF_MAX_RECV_BUF);
 							}
 							
@@ -202,6 +202,7 @@ bool CTCPNet::UnInit()
 	 delete (STRU_SESSION * )ite->second;
 	 ite = m_mp_socket_session.erase(ite);
 	 m_lock.UnLock();
+	 closesocket(socket);
 	 return true ;
  }
   long CTCPNet::GetHostIP()

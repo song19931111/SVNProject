@@ -90,6 +90,7 @@
     <ClInclude Include="DataSet\User.h" />
     <ClInclude Include="DataSet\DataSet.h" />
     <ClInclude Include="Kernel\Kernel.h" />
+    <ClInclude Include="NetWork\Factory.h" />
     <ClInclude Include="NetWork\INet.h" />
     <ClInclude Include="NetWork\TCPNet.h" />
     <ClInclude Include="NetWork\UDPNet.h" />
@@ -101,6 +102,7 @@
     <ClCompile Include="DataSet\Project.cpp" />
     <ClCompile Include="DataSet\User.cpp" />
     <ClCompile Include="Kernel\Kernel.cpp" />
+    <ClCompile Include="NetWork\Factory.cpp" />
     <ClCompile Include="NetWork\TCPNet.cpp" />
     <ClCompile Include="NetWork\UDPNet.cpp" />
     <ClCompile Include="Project\main.cpp" />

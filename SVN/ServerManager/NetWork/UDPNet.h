@@ -9,6 +9,7 @@
 using namespace std; 
 typedef map<long long ,STRU_SESSION *> MAP_UDP_SESSION;
 class CUDPNet : public INet{
+public :
 	CUDPNet():m_iThreadCount(0),m_bRun(true),m_udpSocket(0)
 	{
 	
@@ -19,19 +20,26 @@ class CUDPNet : public INet{
 	virtual bool UnInit() ;
 	
 	long GetHostIP();
-	bool RemoveSession(STRU_SESSION *pSession); //提供给外部调用
+	
+	bool Close()
+	{
+		return  this->UnInit();
+	}
 private  :
 	static unsigned int __stdcall RecvProc( void *param );
 	void RecvFun();
 	bool InnerInitNet();
-	
+	bool RemoveSession(STRU_SESSION *pSession); //提供给外部调用
 	private :
 		SOCKET m_udpSocket ;
 		MAP_UDP_SESSION m_mp_session ;
 		bool m_bRun ; 
 		int  m_iThreadCount ;
 		MyLock m_lock_mp_session; 
-	
+	bool NofityNetDisconnet( STRU_SESSION *pSession  ) 
+	{
+		return this->RemoveSession( pSession);
+	}
 };
 
 #endif //____INCLUDE__UDPNET__H____

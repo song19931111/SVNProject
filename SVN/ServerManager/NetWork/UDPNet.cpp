@@ -153,7 +153,7 @@ void CUDPNet::RecvFun()
 								//找到了这个信息结构
 								if ( m_pNotify )
 								{
-									m_pNotify->NotiftyRecvData(pRemSession,szRecvBuf,iRet);
+									m_pNotify->NotiftyRecvData(pRemSession,szRecvBuf,iRet,enum_udp_type);
 								}
 							
 							}
@@ -185,5 +185,6 @@ bool CUDPNet::RemoveSession(STRU_SESSION *pSession)
 	delete (STRU_SESSION *)ite->second;
 	ite = m_mp_session.erase(ite);
 	m_lock_mp_session.UnLock();
+	
 	return true; 
 }
