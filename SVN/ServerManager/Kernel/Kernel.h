@@ -46,11 +46,11 @@ public :
 	virtual void NotifyKernelAddProject ( const char * pProjectName ) = 0  ;
 	virtual void NotifyKernelUserJoinGroup( unsigned long lUserID, const char * pGroupName ) =  0 ;
 	virtual void NotifyKernelUserLeaveGroup( unsigned long lUserID, const char * pGroupName ) =  0 ;
-	virtual void NotifyKernelUserJoinProject( unsigned long lUserID, const char * pProName ) =  0 ;
-	virtual void NotifyKernelUserLeaveProject( unsigned long lUserID, const char * pProName ) =  0 ;
-	virtual void NotifyKernelGroupJoinProject( const char *pGroupName, const char * pProName ) =  0 ;
-	virtual void NotifyKernelGroupLeaveProject( const char *pGroupName, const char * pProName ) =  0 ;
-	virtual void NotifyKernelSetGroupPower (  const char * pGroupName,  unsigned short ePower  ) =  0 ;
+	virtual void NotifyKernelUserJoinProject( unsigned long lUserID, unsigned long lProjectID ) =  0 ;
+	virtual void NotifyKernelUserLeaveProject( unsigned long lUserID, unsigned long lProjectID) =  0 ;
+	virtual void NotifyKernelGroupJoinProject( unsigned long lGroupID,unsigned long lProjectID ) =  0 ;
+	virtual void NotifyKernelGroupLeaveProject( unsigned long lGroupID, unsigned long lProjectID ) =  0 ;
+	virtual void NotifyKernelSetGroupPower ( unsigned long lGroupID,  unsigned short ePower  ) =  0 ;
 	virtual void NofityKernelSetUserPower( unsigned long lUserID, unsigned short ePower ) = 0 ; 
 	virtual void NofityKernelGetUserList(  ) = 0  ;
 	virtual void NofityKernelGetGroupList(  )  = 0 ;
@@ -63,13 +63,13 @@ public :
 	virtual void NotifyUIAddUser( unsigned long lUserID,const char *pPassword ) =  0;
 	virtual void NotifyUIAddGroup( const char * pGroupName ) = 0 ;
 	virtual void NotifyUIAddProject ( const char * pProjectName ) = 0  ;
-	virtual void NotifyUIUserJoinGroup( unsigned long lUserID, const char * pGroupName ) =  0 ;
-	virtual void NotifyUIUserLeaveGroup( unsigned long lUserID, const char * pGroupName ) =  0 ;
-	virtual void NotifyUIUserJoinProject( unsigned long lUserID, const char * pProName ) =  0 ;
-	virtual void NotifyUIUserLeaveProject( unsigned long lUserID, const char * pProName ) =  0 ;
-	virtual void NotifyUIGroupJoinProject( const char *pGroupName, const char * pProName ) =  0 ;
-	virtual void NotifyUIGroupLeaveProject( const char *pGroupName, const char * pProName ) =  0 ;
-	virtual void NotifyUISetGroupPower (  const char * pGroupName,  unsigned short ePower  ) =  0 ;
+	virtual void NotifyUIUserJoinGroup( unsigned long lUserID,  unsigned long lGroupID ) =  0 ;
+	virtual void NotifyUIUserLeaveGroup( unsigned long lUserID, unsigned long lGroupID ) =  0 ;
+	virtual void NotifyUIUserJoinProject( unsigned long lUserID, unsigned long lProjectID ) =  0 ;
+	virtual void NotifyUIUserLeaveProject( unsigned long lUserID,unsigned long lProjectID) =  0 ;
+	virtual void NotifyUIGroupJoinProject(  unsigned long lGroupID,unsigned long lProjectID ) =  0 ;
+	virtual void NotifyUIGroupLeaveProject(  unsigned long lGroupID, unsigned long lProjectID ) =  0 ;
+	virtual void NotifyUISetGroupPower ( unsigned long lGroupID,  unsigned short ePower  ) =  0 ;
 	virtual void NofityUISetUserPower( unsigned long lUserID, unsigned short ePower ) = 0 ; 
 	virtual void NofityUISetUserList( list < unsigned long  > & ls_userID  ) = 0  ;
 	virtual void NofityUISetGroupList( list< string > & ls_groupList )  = 0 ;
@@ -83,13 +83,15 @@ public :
 	 void NotifyKernelAddUser( unsigned long lUserID,const char *pPassword ) =  0;
 	 void NotifyKernelAddGroup( const char * pGroupName ) = 0 ;
 	 void NotifyKernelAddProject ( const char * pProjectName ) = 0  ;
-	 void NotifyKernelUserJoinGroup( unsigned long lUserID, const char * pGroupName ) ;
+	 void NotifyKernelUserJoinGroup( unsigned long lUserID, unsigned long lGroupID ) ;
 	 void NotifyKernelUserLeaveGroup( unsigned long lUserID, const char * pGroupName )  ;
 	 void NotifyKernelUserJoinProject( unsigned long lUserID, const char * pProName )  ;
-	 void NotifyKernelUserLeaveProject( unsigned long lUserID, const char * pProName )  ;
-	 void NotifyKernelGroupJoinProject( const char *pGroupName, const char * pProName )  ;
-	 void NotifyKernelGroupLeaveProject( const char *pGroupName, const char * pProName )  ;
-	 void NotifyKernelSetGroupPower (  const char * pGroupName,  unsigned short ePower  )  ;
+	 void NotifyKernelUserLeaveProject( unsigned long lUserID, unsigned long lGroupID )  ;
+	 void NotifyKernelGroupJoinProject( unsigned long lGroupID,  unsigned long lProjectID)  ;
+	 void NotifyKernelGroupLeaveProject( unsigned long lGroupID, unsigned long lProjectID)  ;
+
+
+	 void NotifyKernelSetGroupPower (  unsigned long lGroupID,  unsigned short ePower  )  ;
 	 void NofityKernelSetUserPower( unsigned long lUserID, unsigned short ePower ) ; 
 	 void NofityKernelGetUserList(  )   ;
 	 void NofityKernelGetGroupList(  )   ;
