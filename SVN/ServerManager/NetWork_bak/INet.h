@@ -19,7 +19,7 @@ public :
 
 class INet : public IObServer{
 public :
-	virtual long SendData( char szBuf[],long lBuflen ) =  0;
+	virtual long SendData( STRU_SESSION *pSession,char szBuf[],long lBuflen ) =  0;
 	virtual bool Init( INotify *m_pNotify ) = 0;
 	virtual bool UnInit() = 0;
 	virtual bool Close()  =  0 ;

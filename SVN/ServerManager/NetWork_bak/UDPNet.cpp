@@ -1,6 +1,20 @@
 #include "UDPNet.h"
 
-
+long CUDPNet::GetHostIP()
+{
+	unsigned long lValidIP =inet_addr("127.0.0.1"); 
+	char szHostName[255];
+	if ( 0 != gethostname(szHostName,sizeof( szHostName ) ) ) 
+	{
+		//无法获取到主机名:
+		return lValidIP;
+	}
+	hostent * pHostNet  = gethostbyname(szHostName);
+	if (pHostNet->h_addr_list [ 0 ] !=NULL && pHostNet->h_length == 4  )
+	{
+	return  * ( long * )pHostNet->h_addr_list [ 0 ];
+	}
+}
 bool CUDPNet::InnerInitNet()
 {
 	WSADATA wsaData;
@@ -8,27 +22,27 @@ bool CUDPNet::InnerInitNet()
 	m_udpSocket = socket(AF_INET,SOCK_DGRAM,0);
 	sockaddr_in addr; 
 	addr.sin_family  =AF_INET;
-	addr.sin_addr.S_un.S_addr = inet_addr ( DEF_SERVER_IP ) ;
+	addr.sin_addr.S_un.S_addr = GetHostIP();
 	addr.sin_port = DEF_UDP_PORT;
 	int ret; 
-	////为了广播，必须绑定一个端口
-	//ret = bind(m_udpSocket,( sockaddr * )&addr,sizeof(addr));
-	/*if ( ret == SOCKET_ERROR )
+	//为了广播，必须绑定一个端口
+	ret = bind(m_udpSocket,( sockaddr * )&addr,sizeof(addr));
+	if ( ret == SOCKET_ERROR )
 	{
 		return false ;
-	}*/
+	}
 	//设置socket具有广播属性:
-	//int iFlag = 1; 
-	//setsockopt(m_udpSocket,SOL_SOCKET,SO_BROADCAST,(char * )iFlag,sizeof( iFlag ));
+	int iFlag = 1; 
+	setsockopt(m_udpSocket,SOL_SOCKET,SO_BROADCAST,(char * )iFlag,sizeof( iFlag ));
 	return true; 
 }
- long CUDPNet::SendData( char szBuf[],long lBuflen ) 
+ long CUDPNet::SendData( STRU_SESSION *pSession,char szBuf[],long lBuflen ) 
  {
 	//构造addr
 	 sockaddr_in addr; 
 	 addr.sin_family = AF_INET;
-	 addr.sin_addr.S_un.S_addr = (m_Serversession.m_sock&((unsigned long )0))>>32;
-	 addr.sin_port = ( unsigned short  )m_Serversession.m_sock;
+	 addr.sin_addr.S_un.S_addr = (pSession->m_sock&((unsigned long )0))>>32;
+	 addr.sin_port = ( unsigned short  )pSession->m_sock;
 	 if (! m_udpSocket )
 	 {
 		return false ;
@@ -64,15 +78,21 @@ bool CUDPNet::UnInit()
 	 {
 		 Sleep(1);
 	 }
-	
+	 MAP_UDP_SESSION ::iterator ite= m_mp_session.begin();
+	 while( ite !=  m_mp_session.end() )
+	 {
+		 delete (STRU_SESSION *)ite->second;
+		ite++;
+	 }
 	 m_pNotify  =NULL;
 	 if ( m_udpSocket )
 	 {
-		// closesocket(m_udpSocket);
+		 closesocket(m_udpSocket);
 		 m_udpSocket = NULL;
 		 WSACleanup();
 	 }
 
+	 m_mp_session.clear();
 	 return true;
 }
  unsigned int __stdcall CUDPNet::RecvProc( void *param )
@@ -119,15 +139,33 @@ void CUDPNet::RecvFun()
 						int iRet  =recvfrom(m_udpSocket,szRecvBuf,sizeof( szRecvBuf ),0,(sockaddr *)&client_addr,&iLen);
 						long long i64Data ;
 						i64Data = ( ( long long  )client_addr.sin_addr.S_un.S_addr)<<32 +( unsigned short )client_addr.sin_port;
-						m_Serversession.m_sock  =  i64Data;
 						if ( iRet >  0  )
 						{
 							//重组数据:高32位为IP，低16位为端口(高字节)
+						
+							MAP_UDP_SESSION ::iterator ite ; 
+							STRU_SESSION * pRemSession  = NULL;
+							m_lock_mp_session.Lock();
+							if ( ( ite = m_mp_session.find( i64Data  ) )  != m_mp_session.end()  )
+							{
+								pRemSession = ite->second;
+								m_lock_mp_session.UnLock();
 								//找到了这个信息结构
 								if ( m_pNotify )
 								{
-									m_pNotify->NotiftyRecvData(&m_Serversession,szRecvBuf,iRet,enum_udp_type);
-								}			
+									m_pNotify->NotiftyRecvData(pRemSession,szRecvBuf,iRet,enum_udp_type);
+								}
+							
+							}
+							else
+							{
+								//加入到map客户端表中，向相当于TCP的accpet 
+								STRU_SESSION *pSession = new STRU_SESSION;
+								pSession->m_sock = i64Data;
+								m_lock_mp_session.Lock();
+								m_mp_session[ i64Data ] = pSession;
+								m_lock_mp_session.UnLock();
+							}
 						}
 					 }
 				}
@@ -137,5 +175,16 @@ void CUDPNet::RecvFun()
 }
 bool CUDPNet::RemoveSession(STRU_SESSION *pSession)
 {
+	MAP_UDP_SESSION::iterator ite ;
+	m_lock_mp_session.Lock();
+	if( (ite =m_mp_session.find(pSession->m_sock) ) == m_mp_session.end() )
+	{
+		m_lock_mp_session.UnLock();
+		return false; 
+	}
+	delete (STRU_SESSION *)ite->second;
+	ite = m_mp_session.erase(ite);
+	m_lock_mp_session.UnLock();
+	
 	return true; 
 }

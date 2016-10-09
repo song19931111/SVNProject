@@ -14,7 +14,7 @@ public :
 	{
 	
 	}
-	virtual long SendData( char szBuf[],long lBuflen ) ;
+	virtual long SendData( STRU_SESSION *pSession,char szBuf[],long lBuflen ) ;
 
 	virtual bool Init( INotify *m_pNotify );
 	virtual bool UnInit() ;
@@ -32,11 +32,10 @@ private  :
 	bool RemoveSession(STRU_SESSION *pSession); //提供给外部调用
 	private :
 		SOCKET m_udpSocket ;
-	//	MAP_UDP_SESSION m_mp_session ;
+		MAP_UDP_SESSION m_mp_session ;
 		bool m_bRun ; 
 		int  m_iThreadCount ;
 		MyLock m_lock_mp_session; 
-		STRU_SESSION m_Serversession ; //服务器的Session
 	bool NofityNetDisconnet( STRU_SESSION *pSession  ) 
 	{
 		return this->RemoveSession( pSession);

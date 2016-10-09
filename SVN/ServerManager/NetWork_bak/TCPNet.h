@@ -7,6 +7,7 @@
 #include <process.h>
 #include "Common.h"
 using namespace std;
+typedef map<SOCKET,STRU_SESSION *> MAP_SESSION;
 #define DEF_MAX_RECV_BUF (2048) 
 
 
@@ -20,16 +21,18 @@ public :
 	{
 	
 	}
-	 long SendData( char szBuf[],long lBuflen ) ;
+	 long SendData( STRU_SESSION *pSession,char szBuf[],long lBuflen ) ;
 	 bool Init( INotify *m_pNotify ) ;
 	 bool UnInit() ;
+	 long GetHostIP();
+	 static unsigned int _stdcall AcceptProc( void * pParam ) ; 
 	 static unsigned int _stdcall RecvProc( void * pParam ) ;
 private :
 	bool InnerInitNet(); 
 	bool m_bRun ;
 	int m_iThreadCount ; 
-	STRU_SESSION  m_session ;
 	SOCKET  m_listenSocket ;
+	MAP_SESSION m_mp_socket_session;
 	MyLock m_lock;
 	char m_szRecvBuf [DEF_MAX_RECV_BUF] ;
 	bool RemoveSession( SOCKET socket  );

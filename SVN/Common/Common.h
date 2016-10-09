@@ -5,7 +5,11 @@
 #define DEF_PRO_LEN (200)
 #define DEF_TCP_PORT ( 12345 )
 #define DEF_UDP_PORT ( 54321 )
+#define DEF_SERVER_IP "127.0.0.1" 
 #define DEF_MAX_RECV_BUF (2048) 
+#define DEF_MAX_GET_USER_COUNT ( 10  )
+#define DEF_MAX_GET_GROUP_COUNT ( 5  )
+#define DEF_MAX_GET_PROJECT_COUNT ( 5  )
 #define DEF_STATUS_WAIT_TIME ( 5000 )  //状态机等待的 时间
 #include <iostream>
 //权限
