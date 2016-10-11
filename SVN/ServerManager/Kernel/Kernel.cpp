@@ -1,5 +1,27 @@
 #include "Kernel.h"
 //初始化
+#define REGISTER_UI_FUN(TYPE,FUN_NAME,FUN_TYPE) FUN_NODE *pFunNode = new FUN_NODE ;\
+	pFunNode->eFunType = FUN_TYPE;\
+	pFunNode->pf_base =(_pf_base) &IUIToKernel::NotifyUI##FUN_NAME;\
+	m_mp_fun_type[DEF_SM2S_##TYPE##_RS]  = pFunNode;
+void CKernel::RegisterNofityUIFun()
+{
+	//IUIToKernel::NofityUIJoinProject
+	REGISTER_UI_FUN(ADD_USER,AddUser,pf_ul_sz_b)
+	REGISTER_UI_FUN(ADD_GROUP,AddGroup,pf_sz_b)
+	REGISTER_UI_FUN(ADD_PRO,AddProject,pf_sz_b)
+	REGISTER_UI_FUN(JOIN_GROUP,JoinGroup,pf_ul_ul_b)
+	REGISTER_UI_FUN(LEAVE_GROUP,LeaveGroup,pf_ul_ul_b)
+	REGISTER_UI_FUN(JOIN_PRO,JoinProject,pf_ul_ul_b)
+	REGISTER_UI_FUN(LEAVE_PRO,LeaveProject,pf_ul_ul_b)
+	REGISTER_UI_FUN(SET_POWER,SetPower,pf_ul_ul_b)
+	REGISTER_UI_FUN(DELETE_USER,DelUser,pf_ul_b)
+	REGISTER_UI_FUN(DELETE_GROUP,DelGroup,pf_ul_b)
+	REGISTER_UI_FUN(DELETE_PRO,DelProject,pf_ul_b)
+	REGISTER_UI_FUN(GET_USER_LIST,SetUserList,pf_list_user)
+	REGISTER_UI_FUN(GET_GROUP_LIST,SetGroupList,pf_list_group)
+	REGISTER_UI_FUN(GET_PRO_LIST,SetProList,pf_list_pro)
+}
 bool  CKernel::OpenKernel( IUIToKernel *pUI  )
 {
 	if ( false == CloseKernel() )
@@ -7,6 +29,9 @@ bool  CKernel::OpenKernel( IUIToKernel *pUI  )
 		return false; 
 	}
 	m_pUI = pUI;
+	//注册对应的NotifyUI函数：
+	RegisterNofityUIFun();
+
 	//初始化网络(本来应该是外部加入观察者集合):
 	m_pNet= new CUDPNet;
 	//加入观察者集合:
@@ -109,9 +134,30 @@ void CKernel::NotifyKernelAddUser( unsigned long lUserID,const char *pPassword )
 
 void CKernel::NotiftyRecvData(  STRU_SESSION  *pSession ,char szbuf[],long lBuflen,unsigned short eNetType)
 {
-		//反序列化数据:
+		//取出index ,和类型:
+	int iType =  * ( int * )szbuf ;
+	szbuf+= sizeof ( int  );
+	int iIndex  = *( int *)szbuf ; 
+	//合成key
+	long long i64Key =( ( long long  )iIndex)<<32+iIndex;
+	//让工厂制造相应类型的包:
+	PACK_BASE * pRs   = CFactoryPack::CreateObject(iType);
+	//反序列化数据:
+	if( false == pRs->UnSeriaze(szbuf,lBuflen) ) 
+	{
+		return  ;
+	}
 
-	    //
+	 //将列表需改成response  
+	MAP_STATUS::iterator ite ; 
+	m_lock_mp_status.Lock();
+	if((  ite = m_mp_staus.find( i64Key ) ) != m_mp_staus.end() ) 
+	{
+		ite->second->m_eStatusType = enum_status_response ;
+		ite->second->pRs = pRs ;  
+	}
+	m_lock_mp_status.UnLock();
+
 }
 //void NotifyKernelAddGroup( const char * pGroupName ) ;
 //void NotifyKernelAddProject ( const char * pProjectName ) ;
@@ -157,7 +203,7 @@ void CKernel::DealStatus( STRU_TASK * pTask   )
 	{
 	case enum_status_init:
 	{
-		//解包:
+		//序列化包:
 		char szSendBuf[DEF_MAX_RECV_BUF]  = {0} ; 
 		long lSendLen =  pTask->pRq->Seriaze(szSendBuf,DEF_MAX_RECV_BUF);
 		//重组map的key :
@@ -283,3 +329,7 @@ void CKernel::DealStatus( STRU_TASK * pTask   )
 	}
 }
 
+bool CKernel::NofityUI( STRU_TASK *pTask  )
+{
+
+}

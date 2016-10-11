@@ -84,6 +84,7 @@
     <ClInclude Include="..\Common\LockQueue.h" />
     <ClInclude Include="..\Common\MyLock.h" />
     <ClInclude Include="..\PackDef\C2S\C2S.h" />
+    <ClInclude Include="..\PackDef\SM2S\FactoryPack.h" />
     <ClInclude Include="..\PackDef\SM2S\SM2S.h" />
     <ClInclude Include="DataSet\Group.h" />
     <ClInclude Include="DataSet\Project.h" />

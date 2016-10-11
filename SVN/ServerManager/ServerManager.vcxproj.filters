@@ -72,6 +72,9 @@
     <ClInclude Include="NetWork\Factory.h">
       <Filter>NetWork</Filter>
     </ClInclude>
+    <ClInclude Include="..\PackDef\SM2S\FactoryPack.h">
+      <Filter>PackDef\SM2S</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Project\main.cpp">

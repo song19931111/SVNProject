@@ -13,11 +13,15 @@
 #include "Group.h"
 #include "Project.h"
 #include "UDPNet.h"
+#include "SM2S/FactoryPack.h"
 using namespace std ;
+
+//
+
+
+
 //状态机表:
-typedef map<unsigned int ,IObServer *>MAP_OBSERVER;
-typedef map<long  long,STRU_TASK *>MAP_STATUS ;
-//long long 是序号 + pTask 结构,为了让一个类型的包在map重复多个
+
 struct STRU_TASK{
 public :
 	STRU_TASK *pNext ; 
@@ -45,7 +49,9 @@ public :
 	}
 
 };
-
+typedef map<unsigned int ,IObServer *>MAP_OBSERVER;
+typedef map<long  long,STRU_TASK *>MAP_STATUS ;
+//long long 是序号 + pTask 结构,为了让一个类型的包在map重复多个
 //UI回调Kernel的接口
 class IKernelToUI{
 public :
@@ -58,7 +64,7 @@ public :
 	virtual void NotifyKernelUserLeaveProject( unsigned long lUserID, unsigned long lProjectID) =  0 ;
 	virtual void NotifyKernelGroupJoinProject( unsigned long lGroupID,unsigned long lProjectID ) =  0 ;
 	virtual void NotifyKernelGroupLeaveProject( unsigned long lGroupID, unsigned long lProjectID ) =  0 ;
-	virtual void NotifyKernelSetGroupPower ( unsigned long lGroupID,  unsigned short ePower  ) =  0 ;
+//	virtual void NotifyKernelSetGroupPower ( unsigned long lGroupID,  unsigned short ePower  ) =  0 ;
 	virtual void NofityKernelSetUserPower( unsigned long lUserID, unsigned short ePower ) = 0 ; 
 	virtual void NofityKernelGetUserList(  ) = 0  ;
 	virtual void NofityKernelGetGroupList(  )  = 0 ;
@@ -71,23 +77,50 @@ public :
 	virtual void NotifyUIAddUser( unsigned long lUserID,const char *pPassword ,bool bResult) =  0;
 	virtual void NotifyUIAddGroup( const char * pGroupName,bool bResult ) = 0 ;
 	virtual void NotifyUIAddProject ( const char * pProjectName,bool bResult ) = 0  ;
-	virtual void NotifyUIUserJoinGroup( unsigned long lUserID,  unsigned long lGroupID,bool bResult ) =  0 ;
-	virtual void NotifyUIUserLeaveGroup( unsigned long lUserID, unsigned long lGroupID,bool bResult ) =  0 ;
-	virtual void NotifyUIUserJoinProject( unsigned long lUserID, unsigned long lProjectID,bool bResult ) =  0 ;
-	virtual void NotifyUIUserLeaveProject( unsigned long lUserID,unsigned long lProjectID,bool bResult) =  0 ;
-	virtual void NotifyUIGroupJoinProject(  unsigned long lGroupID,unsigned long lProjectID,bool bResult ) =  0 ;
-	virtual void NotifyUIGroupLeaveProject(  unsigned long lGroupID, unsigned long lProjectID ,bool bResult) =  0 ;
-	virtual void NotifyUISetGroupPower ( unsigned long lGroupID,  unsigned short ePower ,bool bResult ) =  0 ;
-	virtual void NofityUISetUserPower( unsigned long lUserID, unsigned short ePower,bool bResult ) = 0 ; 
+	virtual void NotifyUIJoinGroup( unsigned long lUserID,  unsigned long lGroupID,bool bResult ) =  0 ;
+	virtual void NotifyUILeaveGroup( unsigned long lUserID, unsigned long lGroupID,bool bResult ) =  0 ;
+	virtual void NotifyUISetPower( unsigned long lUserID, unsigned long lProjectID,unsigned short ePower,bool bResult ) = 0 ; 
+	
+	virtual void NotifyUIJoinProject( unsigned long lUserID, unsigned long lProjectID,unsigned short ePower,bool bResult   ) =  0 ;
+	virtual void NotifyUILeaveProject( unsigned long lUserID, unsigned long lProjectID,unsigned short ePower,bool bResult   ) =  0 ;
 	//删除接口
 	virtual void NotifyUIDelUser( unsigned long lUserID ,  bool bResult )  =  0 ;
-	virtual void NofityUIDelGroup( unsigned long lGroupID  ,bool bResult  )  = 0 ;
-	virtual void NofityUIDelProject ( unsigned long lProjectID ,bool bResult  ) =  0 ; 
- 	
-	virtual void NofityUISetUserList( list < CUser *   > & ls_userID  ) = 0  ;
-	virtual void NofityUISetGroupList( list<CGroup *  > & ls_groupList )  = 0 ;
-	virtual void NofityUISetProList( list < CProject * > & ls_proList  )  = 0;
+	virtual void NotifyUIDelGroup( unsigned long lGroupID  ,bool bResult  )  = 0 ;
+	virtual void NotifyUIDelProject ( unsigned long lProjectID ,bool bResult  ) =  0 ; 
+ 	//GetList 
+	virtual void NotifyUISetUserList( list < CUser *   > & ls_userID  ) = 0  ;
+	virtual void NotifyUISetGroupList( list<CGroup *  > & ls_groupList )  = 0 ;
+	virtual void NotifyUISetProList( list < CProject * > & ls_proList  )  = 0;
 };
+/////////////////////////////应对函数是不同的参数////////////////////////////////////////////////////////////////
+//注册对应的参数指针:
+typedef void (IUIToKernel::*_pf_base)( );
+typedef void (IUIToKernel::*_pf_ul_sz_b)( unsigned long ,char *,bool  );
+typedef void (IUIToKernel::*_pf_sz_b)( const char * ,bool   );
+typedef void (IUIToKernel::*_pf_ul_ul_b)( unsigned long ,  unsigned long ,bool );
+typedef void (IUIToKernel::*_pf_ul_ul_ush_b)( unsigned long ,  unsigned long ,unsigned short ,bool );
+typedef void (IUIToKernel::*_pf_ul_b)( unsigned long ,bool );
+typedef void (IUIToKernel::*_pf_list_user)( list<CUser *> );
+typedef void (IUIToKernel::*_pf_list_group)( list<CGroup *> );
+typedef void (IUIToKernel::*_pf_list_pro)( list<CProject *> );
+union u_fun_type{
+	_pf_base pf_base ; 
+	_pf_ul_b pf_ul_b;
+	_pf_ul_sz_b   pf_ul_sz_b;
+	_pf_sz_b pf_sz_b;
+	_pf_ul_ul_b pf_ul_ul_b;
+	_pf_ul_ul_ush_b pf_ul_ush_b;
+	_pf_list_user pf_list_user;
+	_pf_list_group pf_list_group;
+	_pf_list_pro pf_list_pro;
+};
+enum enum_fun_type{pf_base,pf_ul_b,pf_ul_sz_b,pf_sz_b,pf_ul_ul_b,pf_ul_ush_b,pf_list_user,pf_list_group,pf_list_pro};
+struct FUN_NODE{
+	enum_fun_type eFunType ; //函数类型
+	_pf_base pf_base ; 
+} ;
+map< int , FUN_NODE *> m_mp_fun_type; 
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 class IKernel{
 public :
@@ -145,6 +178,7 @@ private:
 	MyLock m_lock_mp_status ;// 访问状态机表的锁
 	MyLock m_lock_status ; //访问状态的锁
    	void DealStatus( STRU_TASK * );//处理状态机的函数
+	void RegisterNofityUIFun(); //将NofityUIXX注册进函数表中去
 	bool NofityUI( STRU_TASK *pTask  ); //返回true需要重新投入到队列中去
 	
 
