@@ -12,7 +12,7 @@ struct STRU_SESSION{
 enum enum_net_type{ enum_tcp_type, enum_udp_type} ;
 class INotify{
 public :
-	virtual void NotiftyRecvData(  STRU_SESSION  *pSession ,char szbuf[],long lBuflen,unsigned short eNetType£©= 0  ;
+	virtual void NotiftyRecvData(  STRU_SESSION  *pSession ,char szbuf[],long lBuflen,unsigned short eNetType)= 0 ;
 
 };
 

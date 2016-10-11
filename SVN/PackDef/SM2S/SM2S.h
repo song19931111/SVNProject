@@ -68,6 +68,7 @@ struct PACK_BASE{
 PACK_BASE(int nPackType):m_nPackSize(nPackType){}
 unsigned int m_nPackSize;
 unsigned int m_nPackType ;
+unsigned int m_iIndex ; //°üÐòºÅ:
 virtual long Seriaze(char szbuf[],long lBuflen) = 0 ;
 virtual bool UnSeriaze(char szbuf[],long lBuflen) = 0 ;
 };

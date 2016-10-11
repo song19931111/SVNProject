@@ -11,6 +11,13 @@ bool  CKernel::OpenKernel( IUIToKernel *pUI  )
 	m_pNet= new CUDPNet;
 	//加入观察者集合:
 	AddObserver(enum_udp_type,m_pNet);
+
+	//初始化索引池:
+	m_indexQueue_pack.InitQueue(DEF_MAX_PACK_COUNT);
+	for( int i=0;i<DEF_MAX_PACK_COUNT ;i++  )
+	{
+		m_indexQueue_pack.Push( i ) ; 
+	}
 	//创建处理线程:
 	m_bRun  = true ;
 	HANDLE handle  = ( HANDLE )_beginthreadex(NULL,0,DealThreadProc,this,0,NULL);
@@ -62,7 +69,65 @@ bool  CKernel::Close(  )
 		ite->second->Close();
 		ite++;
 	}
+	m_indexQueue_pack.UnInitQueue();
 }
+
+void CKernel::NotifyKernelAddUser( unsigned long lUserID,const char *pPassword )
+{
+	//判断参数:
+	if ( 0 == lUserID || pPassword==NULL )
+	{
+		return ; 
+	}
+	//创建一个请求结构:
+	STRU_ADD_USER_RQ *pRq  = new   STRU_ADD_USER_RQ;
+	pRq->m_lUserID = lUserID;
+	strcpy(pRq->m_szPassword,pPassword);
+	pRq->m_lPassLen = strlen( pPassword ) + 1; 
+	//请求一个索引，是为了同一个包类型包在map表中能够同时存在:
+	int iIndex = 0  ; 
+	if( false  == m_indexQueue_pack.Pop( & iIndex ) )
+	{
+		return ; 
+	}
+	pRq->m_iIndex = iIndex;
+	//创建一个任务：
+	STRU_TASK *pTask  =  new  STRU_TASK;
+	pTask->pRq  = pRq; 
+	//修改状态为init 
+	pTask->m_eStatusType = enum_status_init;
+	//设置时间为0 
+	pTask->m_ulTime =  0 ; 
+	//投入队列:
+	if ( false == m_task_queue.Push( pTask) )
+	{
+		return  ; 
+	}
+	//放入map_status 状态机结构表
+	//怕UI线程卡死，而放到处理线程去操作
+}
+
+void CKernel::NotiftyRecvData(  STRU_SESSION  *pSession ,char szbuf[],long lBuflen,unsigned short eNetType)
+{
+		//反序列化数据:
+
+	    //
+}
+//void NotifyKernelAddGroup( const char * pGroupName ) ;
+//void NotifyKernelAddProject ( const char * pProjectName ) ;
+//void NotifyKernelUserJoinGroup( unsigned long lUserID, unsigned long lGroupID ) ;
+//void NotifyKernelUserLeaveGroup( unsigned long lUserID, unsigned long  lGroupID)  ;
+//void NotifyKernelUserJoinProject( unsigned long lUserID, unsigned long lProjectID )  ;
+//void NotifyKernelUserLeaveProject( unsigned long lUserID, unsigned long lGroupID )  ;
+//void NotifyKernelGroupJoinProject( unsigned long lGroupID,  unsigned long lProjectID)  ;
+//void NotifyKernelGroupLeaveProject( unsigned long lGroupID, unsigned long lProjectID)  ;
+//void NotifyKernelSetGroupPower (  unsigned long lGroupID,  unsigned short ePower  )  ;
+//void NofityKernelSetUserPower( unsigned long lUserID, unsigned short ePower ) ; 
+//void NofityKernelGetUserList(  )   ;
+//void NofityKernelGetGroupList(  )   ;
+//void NofityKernelGetProList( )  ;
+
+
 void CKernel::DealProc(  )
 {
 	 //从队列中取出一个任务: 
@@ -85,14 +150,28 @@ void CKernel::DealProc(  )
 }
 void CKernel::DealStatus( STRU_TASK * pTask   )
 {
-	switch ( pTask  ->m_eStatusType )
+	m_lock_status.Lock();
+	unsigned short eStatus =  pTask  ->m_eStatusType;
+	m_lock_status.UnLock();
+	switch ( eStatus )
 	{
 	case enum_status_init:
 	{
 		//解包:
 		char szSendBuf[DEF_MAX_RECV_BUF]  = {0} ; 
 		long lSendLen =  pTask->pRq->Seriaze(szSendBuf,DEF_MAX_RECV_BUF);
-
+		//重组map的key :
+		long long i64Key =( ( long long ) pTask->pRq->m_iIndex)<<32+ pTask->pRq->m_nPackType;
+		// 放入map结构:
+		m_lock_mp_status.Lock();
+		if ( m_mp_staus.find(i64Key ) != m_mp_staus.end() )
+		{
+			m_lock_mp_status.UnLock();
+			//如果找到相同的处理请求，程序出错.
+			break  ; 
+		}
+		m_mp_staus[ i64Key ]  = pTask ; 
+		m_lock_mp_status.UnLock();
 		//TODO :
 		//调用网络类,发送
 		m_pNet->SendData(szSendBuf,lSendLen);
@@ -111,9 +190,9 @@ void CKernel::DealStatus( STRU_TASK * pTask   )
 		{
 			
 			//将状态位修改为init 
-			pTask->m_eStatusType = enum_status_wait;
+			pTask->m_eStatusType = enum_status_init;
 			//修改时间:
-			pTask->m_ulTime = GetTickCount();
+			pTask->m_ulTime = 0;
            //重新放入队列当中
 			m_task_queue.Push( pTask ) ;
 		}
@@ -127,6 +206,7 @@ void CKernel::DealStatus( STRU_TASK * pTask   )
 		if (NofityUI( pTask  )) 
 		{
 			PACK_BASE *pBase =  pTask->pRs;
+			
 			switch( pBase->m_nPackType )
 			{
 			case DEF_SM2S_GET_USER_LIST_RS:
@@ -167,6 +247,18 @@ void CKernel::DealStatus( STRU_TASK * pTask   )
 		break ; 
 	case enum_status_complete:
 	{
+
+		//从map结构中删除该结构:
+		long long i64Key =( ( long long ) pTask->pRq->m_iIndex)<<32+ pTask->pRq->m_nPackType;
+		m_lock_mp_status.Lock();
+		MAP_STATUS::iterator ite = m_mp_staus.find(i64Key);
+		if( ite !=  m_mp_staus.end() )
+		{
+			m_mp_staus.erase( ite ) ;
+		}
+		m_lock_mp_status.UnLock();
+		//归还索引:
+		m_indexQueue_pack.Push( pTask->pRq->m_iIndex);
 		pTask ->Destory();
 		delete pTask ;
 		pTask  =  NULL;
@@ -174,10 +266,20 @@ void CKernel::DealStatus( STRU_TASK * pTask   )
 		break ; 
 	default :
 	{
+		long long i64Key =( ( long long ) pTask->pRq->m_iIndex)<<32+ pTask->pRq->m_nPackType;
+		m_lock_mp_status.Lock();
+		MAP_STATUS::iterator ite = m_mp_staus.find(i64Key);
+		if( ite !=  m_mp_staus.end() )
+		{
+			m_mp_staus.erase( ite ) ;
+		}
+		m_lock_mp_status.UnLock();
+		//归还索引:
+		m_indexQueue_pack.Push( pTask->pRq->m_iIndex);
 		pTask ->Destory();
 		delete pTask ;
 		pTask  =  NULL;
-	}
+	} //switch 
 	}
 }
 

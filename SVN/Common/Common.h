@@ -10,6 +10,7 @@
 #define DEF_MAX_GET_USER_COUNT ( 10  )
 #define DEF_MAX_GET_GROUP_COUNT ( 5  )
 #define DEF_MAX_GET_PROJECT_COUNT ( 5  )
+#define DEF_MAX_PACK_COUNT ( 1000 )  //同时存在的包数量
 #define DEF_STATUS_WAIT_TIME ( 5000 )  //状态机等待的 时间
 #include <iostream>
 //权限

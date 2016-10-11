@@ -16,9 +16,13 @@
 using namespace std ;
 //状态机表:
 typedef map<unsigned int ,IObServer *>MAP_OBSERVER;
+typedef map<long  long,STRU_TASK *>MAP_STATUS ;
+//long long 是序号 + pTask 结构,为了让一个类型的包在map重复多个
 struct STRU_TASK{
 public :
-	STRU_TASK(): pRq( NULL ) , pRs ( NULL ) ,m_ulTime ( 0 )
+	STRU_TASK *pNext ; 
+public :
+	STRU_TASK(): pRq( NULL ) , pRs ( NULL ) ,m_ulTime ( 0 ) ,pNext( NULL )
 	{
 	
 	}
@@ -91,15 +95,16 @@ public :
 	virtual bool CloseKernel(  )  =  0 ;
 
 };
-class CKernel : public IObServerMember , public IKernelToUI , public IObServer,public IKernel{
+class CKernel : public IObServerMember , public IKernelToUI , public IObServer,public IKernel,INotify{
 public :
 	//IKernel的接口:
 	bool OpenKernel( IUIToKernel *m_pUI  ) ; 
 	bool CloseKernel(  );
+private : 
 	//给ＵI的回调
-	 void NotifyKernelAddUser( unsigned long lUserID,const char *pPassword ) =  0;
-	 void NotifyKernelAddGroup( const char * pGroupName ) = 0 ;
-	 void NotifyKernelAddProject ( const char * pProjectName ) = 0  ;
+	 void NotifyKernelAddUser( unsigned long lUserID,const char *pPassword );
+	 void NotifyKernelAddGroup( const char * pGroupName ) ;
+	 void NotifyKernelAddProject ( const char * pProjectName ) ;
 	 void NotifyKernelUserJoinGroup( unsigned long lUserID, unsigned long lGroupID ) ;
 	 void NotifyKernelUserLeaveGroup( unsigned long lUserID, unsigned long  lGroupID)  ;
 	 void NotifyKernelUserJoinProject( unsigned long lUserID, unsigned long lProjectID )  ;
@@ -120,7 +125,9 @@ public :
 private: 
 	static unsigned int __stdcall DealThreadProc ( void * pParam  ) ; 
 	void DealProc(  );  //线程中调用的函数
-	
+private :
+	//INotify的借口:
+	void NotiftyRecvData(  STRU_SESSION  *pSession ,char szbuf[],long lBuflen,unsigned short eNetType);
 private :
 	bool m_bRun ;
 	HANDLE m_quieHandle ; //让线程强制退出的信号:
@@ -128,11 +135,18 @@ private :
 	INet * m_pNet ; 
 private:
 	//状态机定义:
+	//（注一下两者都是用来存取任务结构，但是可以存在并发，因为处理线程只会当状态机为init的状态改为wait
+	//或者把状态机为response状态改成complete .而收数据线程只会当wait的状态的时候，改为response 状态）
+	//但是要对修改的状态机的时候加锁,因为可能存在着任务队列去取状态机的时候，操作response的线程正在修改
+	//状态机（指的是ptask->status对应的内存）而造成的同步问题
+	MAP_STATUS m_mp_staus;  
 	CLockQueue< STRU_TASK * > m_task_queue ;
-	//MyLock m_lock_status ;// 访问状态机表的锁
+	CLockQueue< int  > m_indexQueue_pack; //包的索引
+	MyLock m_lock_mp_status ;// 访问状态机表的锁
+	MyLock m_lock_status ; //访问状态的锁
    	void DealStatus( STRU_TASK * );//处理状态机的函数
 	bool NofityUI( STRU_TASK *pTask  ); //返回true需要重新投入到队列中去
-
+	
 
 
 
