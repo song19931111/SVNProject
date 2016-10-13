@@ -60,7 +60,7 @@ public :
 	virtual void NotifyKernelAddProject ( const char * pProjectName ) = 0  ;
 	virtual void NotifyKernelUserJoinGroup( unsigned long lUserID, const char * pGroupName ) =  0 ;
 	virtual void NotifyKernelUserLeaveGroup( unsigned long lUserID, const char * pGroupName ) =  0 ;
-	virtual void NotifyKernelUserJoinProject( unsigned long lUserID, unsigned long lProjectID ) =  0 ;
+	virtual void NotifyKernelUserJoinProject( unsigned long lUserID, unsigned long lProjectID ,unsigned short ePower) =  0 ;
 	virtual void NotifyKernelUserLeaveProject( unsigned long lUserID, unsigned long lProjectID) =  0 ;
 	virtual void NotifyKernelGroupJoinProject( unsigned long lGroupID,unsigned long lProjectID ) =  0 ;
 	virtual void NotifyKernelGroupLeaveProject( unsigned long lGroupID, unsigned long lProjectID ) =  0 ;
@@ -82,7 +82,7 @@ public :
 	virtual void NotifyUISetPower( unsigned long lUserID, unsigned long lProjectID,unsigned short ePower,bool bResult ) = 0 ; 
 	
 	virtual void NotifyUIJoinProject( unsigned long lUserID, unsigned long lProjectID,unsigned short ePower,bool bResult   ) =  0 ;
-	virtual void NotifyUILeaveProject( unsigned long lUserID, unsigned long lProjectID,unsigned short ePower,bool bResult   ) =  0 ;
+	virtual void NotifyUILeaveProject( unsigned long lUserID, unsigned long lProjectID,bool bResult   ) =  0 ;
 	//删除接口
 	virtual void NotifyUIDelUser( unsigned long lUserID ,  bool bResult )  =  0 ;
 	virtual void NotifyUIDelGroup( unsigned long lGroupID  ,bool bResult  )  = 0 ;
@@ -94,32 +94,32 @@ public :
 };
 /////////////////////////////应对函数是不同的参数////////////////////////////////////////////////////////////////
 //注册对应的参数指针:
-typedef void (IUIToKernel::*_pf_base)( );
-typedef void (IUIToKernel::*_pf_ul_sz_b)( unsigned long ,char *,bool  );
-typedef void (IUIToKernel::*_pf_sz_b)( const char * ,bool   );
-typedef void (IUIToKernel::*_pf_ul_ul_b)( unsigned long ,  unsigned long ,bool );
-typedef void (IUIToKernel::*_pf_ul_ul_ush_b)( unsigned long ,  unsigned long ,unsigned short ,bool );
-typedef void (IUIToKernel::*_pf_ul_b)( unsigned long ,bool );
-typedef void (IUIToKernel::*_pf_list_user)( list<CUser *> );
-typedef void (IUIToKernel::*_pf_list_group)( list<CGroup *> );
-typedef void (IUIToKernel::*_pf_list_pro)( list<CProject *> );
-union u_fun_type{
-	_pf_base pf_base ; 
-	_pf_ul_b pf_ul_b;
-	_pf_ul_sz_b   pf_ul_sz_b;
-	_pf_sz_b pf_sz_b;
-	_pf_ul_ul_b pf_ul_ul_b;
-	_pf_ul_ul_ush_b pf_ul_ush_b;
-	_pf_list_user pf_list_user;
-	_pf_list_group pf_list_group;
-	_pf_list_pro pf_list_pro;
-};
-enum enum_fun_type{pf_base,pf_ul_b,pf_ul_sz_b,pf_sz_b,pf_ul_ul_b,pf_ul_ush_b,pf_list_user,pf_list_group,pf_list_pro};
-struct FUN_NODE{
-	enum_fun_type eFunType ; //函数类型
-	_pf_base pf_base ; 
-} ;
-map< int , FUN_NODE *> m_mp_fun_type; 
+//typedef void (IUIToKernel::*_pf_base)( );
+//typedef void (IUIToKernel::*_pf_ul_sz_b)( unsigned long ,char *,bool  );
+//typedef void (IUIToKernel::*_pf_sz_b)( const char * ,bool   );
+//typedef void (IUIToKernel::*_pf_ul_ul_b)( unsigned long ,  unsigned long ,bool );
+//typedef void (IUIToKernel::*_pf_ul_ul_ush_b)( unsigned long ,  unsigned long ,unsigned short ,bool );
+//typedef void (IUIToKernel::*_pf_ul_b)( unsigned long ,bool );
+//typedef void (IUIToKernel::*_pf_list_user)( list<CUser *> );
+//typedef void (IUIToKernel::*_pf_list_group)( list<CGroup *> );
+//typedef void (IUIToKernel::*_pf_list_pro)( list<CProject *> );
+//union u_fun_type{
+//	_pf_base pf_base ; 
+//	_pf_ul_b pf_ul_b;
+//	_pf_ul_sz_b   pf_ul_sz_b;
+//	_pf_sz_b pf_sz_b;
+//	_pf_ul_ul_b pf_ul_ul_b;
+//	_pf_ul_ul_ush_b pf_ul_ul_ush_b;
+//	_pf_list_user pf_list_user;
+//	_pf_list_group pf_list_group;
+//	_pf_list_pro pf_list_pro;
+//};
+//enum enum_fun_type{pf_base,pf_ul_b,pf_ul_sz_b,pf_sz_b,pf_ul_ul_b,pf_ul_ush_b,pf_list_user,pf_list_group,pf_list_pro};
+//struct FUN_NODE{
+//	enum_fun_type eFunType ; //函数类型
+//	_pf_base pf_base ; 
+//} ;
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 class IKernel{
@@ -140,7 +140,7 @@ private :
 	 void NotifyKernelAddProject ( const char * pProjectName ) ;
 	 void NotifyKernelUserJoinGroup( unsigned long lUserID, unsigned long lGroupID ) ;
 	 void NotifyKernelUserLeaveGroup( unsigned long lUserID, unsigned long  lGroupID)  ;
-	 void NotifyKernelUserJoinProject( unsigned long lUserID, unsigned long lProjectID )  ;
+	 void NotifyKernelUserJoinProject( unsigned long lUserID, unsigned long lProjectID,unsigned short ePower )  ;
 	 void NotifyKernelUserLeaveProject( unsigned long lUserID, unsigned long lGroupID )  ;
 	 void NotifyKernelGroupJoinProject( unsigned long lGroupID,  unsigned long lProjectID)  ;
 	 void NotifyKernelGroupLeaveProject( unsigned long lGroupID, unsigned long lProjectID)  ;
@@ -173,6 +173,7 @@ private:
 	//但是要对修改的状态机的时候加锁,因为可能存在着任务队列去取状态机的时候，操作response的线程正在修改
 	//状态机（指的是ptask->status对应的内存）而造成的同步问题
 	MAP_STATUS m_mp_staus;  
+	//map< int , FUN_NODE *> m_mp_fun_type; 
 	CLockQueue< STRU_TASK * > m_task_queue ;
 	CLockQueue< int  > m_indexQueue_pack; //包的索引
 	MyLock m_lock_mp_status ;// 访问状态机表的锁

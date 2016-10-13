@@ -54,6 +54,15 @@ public :
 		m_setUserList.insert(id);
 		return true;
 	}
+	void SetProID( unsigned long lProID )
+	{
+		this->m_lProjectID = lProID;
+	}
+	bool AddUser( set<long long >set_user )
+	{
+		m_setUserList.insert(set_user.begin(),set_user.end());
+		return true ; 
+	}
 	bool AddGroup(unsigned long m_GroupID, unsigned short ePower)
 	{
 		long long id =  (unsigned long )m_GroupID  + (ePower)<<32;

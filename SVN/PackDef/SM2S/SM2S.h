@@ -169,7 +169,7 @@ struct STRU_ADD_GROUP_RS :public PACK_BASE{
 enum join_group_result{enum_join_group_success,enum_join_failed};
 struct STRU_JOIN_GROUP_RQ :public PACK_BASE{
 	static unsigned long lMinLength ; 
-	long m_iUserID;
+	long m_lUserID;
 //	long m_lGroupLen; 
 	//char m_szGroup[DEF_GROUP_LEN];
 	unsigned long m_lGroupID;
@@ -185,7 +185,7 @@ struct STRU_JOIN_GROUP_RQ :public PACK_BASE{
 };
 struct STRU_JOIN_GROUP_RS :public PACK_BASE{
 	static unsigned long lMinLength ; 
-	long m_iUserID;
+	long m_lUserID;
 	unsigned long m_lGroupID;
 	//long m_lGroupLen; 
 	unsigned short m_iResult ; 
@@ -241,7 +241,7 @@ struct STRU_DELETE_GROUP_RS :public PACK_BASE{
 enum leave_group_result{enum_leave_group_success,enum_leave_failed};
 struct STRU_LEAVE_GROUP_RQ :public PACK_BASE{
 	static unsigned long lMinLength ; 
-	long m_iUserID;
+	long m_lUserID;
 	long m_lGroupID;
 	//long m_lGroupLen; 
 	//char m_szGroup[DEF_GROUP_LEN];
@@ -259,7 +259,7 @@ struct STRU_LEAVE_GROUP_RQ :public PACK_BASE{
 struct STRU_LEAVE_GROUP_RS :public PACK_BASE{
 	static unsigned long lMinLength ; 
 	//long m_lGroupLen; 
-	long m_iUserID;
+	long m_lUserID;
 	int m_iResult ; 
 	unsigned long m_lGroupID;
 	//char m_szGroup[DEF_GROUP_LEN];
@@ -355,6 +355,7 @@ struct STRU_JOIN_PRO_RQ :public PACK_BASE{
 	long m_lUserID;
 	long m_lGroupID ;  // 如果m_lUSerID =  0 ，则为加入项目
 	long m_lProID;
+	unsigned short m_ePower ; //加入的权限 
 	//long m_lProNameLen;
 	//char m_szProName[DEF_PRO_LEN];
 	
@@ -375,6 +376,7 @@ struct STRU_JOIN_PRO_RS :public PACK_BASE{
 	//long m_lProNameLen;
 	long m_lProID;
 	unsigned short m_iResult; 
+	unsigned short m_ePower ; //加入的权限 
 	//char m_szProName[DEF_PRO_LEN];
 	
 	STRU_JOIN_PRO_RS():PACK_BASE(DEF_SM2S_JOIN_PRO_RS){};
@@ -392,6 +394,7 @@ enum leave_pro_result{enum_leave_pro_success,enum_leave_pro_failed};
 struct STRU_LEAVE_PRO_RQ :public PACK_BASE{
 	static unsigned long lMinLength ; 
 	long m_lUserID;
+	long m_lGroupID ; 
 	long m_lProID;
 	//long m_lProNameLen;
 	//char m_szProName[DEF_PRO_LEN];
@@ -409,6 +412,7 @@ struct STRU_LEAVE_PRO_RQ :public PACK_BASE{
 struct STRU_LEAVE_PRO_RS :public PACK_BASE{
 	static unsigned long lMinLength ; 
 	long m_lUserID;
+	long m_lGroupID ; 
 	long m_lProID;
 	//long m_lProNameLen;
 	unsigned short m_iResult; 
@@ -455,6 +459,7 @@ struct STRU_SET_POWER_RS :public PACK_BASE{
 	unsigned long m_lGroupID ; 
 	unsigned long m_lProID;
 	unsigned short m_iResult; 
+	unsigned short m_ePower ; //权限
 	//char m_szProName[DEF_PRO_LEN];
 	//char m_szGroup[DEF_GROUP_LEN];
 	STRU_SET_POWER_RS():PACK_BASE(DEF_SM2S_SET_POWER_RS){};
@@ -528,7 +533,7 @@ struct STRU_GROUP_INFO{
 public :
 	static long m_lMinLength ; 
 	unsigned long m_lGroupID;
-	list< unsigned long  >m_ls_user;
+	set< unsigned long  >m_set_user;
 	long m_lGroupNameLen ; 
 	char m_szGroup[DEF_GROUP_LEN];
 	STRU_GROUP_INFO():m_lGroupID(0)
@@ -585,7 +590,7 @@ struct STRU_PROJECT_INFO{
 public :
 	static long m_lMinLength ; 
 	unsigned long m_lProID;
-	list< long long >m_ls_user_list ;
+	set< long long >m_set_user;
      long m_lCreateTime ; 
 	 long m_lProNameLen;
 	 char m_szProName[ DEF_PRO_LEN ];

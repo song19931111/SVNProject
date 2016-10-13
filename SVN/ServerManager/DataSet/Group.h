@@ -19,7 +19,6 @@ public :
 	{
 		m_lGroupLen = 0 ;
 		memset(m_szGroupName,0,sizeof(  m_szGroupName ));
-		m_ePower =  0;
 	}
 	
 	bool  JoinGroup( unsigned long m_lUserID )
@@ -31,6 +30,13 @@ public :
 			return false ;
 		}
 		m_userSet.insert(m_lUserID);
+		return true ;
+	}
+
+	bool  JoinGroup( set<unsigned long> set_user )
+	{
+			//¼ÓÈë×é
+		m_userSet.insert(set_user.begin(),set_user.end());
 		return true ;
 	}
 	bool LeaveGroup( unsigned long m_lUserID )
@@ -51,6 +57,10 @@ public :
 			return;
 		}
 		strcpy(m_szGroupName,pGroupName);
+	}
+	void SetGroupID( unsigned long lID)
+	{
+		m_lGroupID = lID ;
 	}
 	/*void SetGroupPower( unsigned short ePower )
 	{

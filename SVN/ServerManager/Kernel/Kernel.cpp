@@ -1,27 +1,27 @@
 #include "Kernel.h"
 //初始化
-#define REGISTER_UI_FUN(TYPE,FUN_NAME,FUN_TYPE) FUN_NODE *pFunNode = new FUN_NODE ;\
-	pFunNode->eFunType = FUN_TYPE;\
-	pFunNode->pf_base =(_pf_base) &IUIToKernel::NotifyUI##FUN_NAME;\
-	m_mp_fun_type[DEF_SM2S_##TYPE##_RS]  = pFunNode;
-void CKernel::RegisterNofityUIFun()
-{
-	//IUIToKernel::NofityUIJoinProject
-	REGISTER_UI_FUN(ADD_USER,AddUser,pf_ul_sz_b)
-	REGISTER_UI_FUN(ADD_GROUP,AddGroup,pf_sz_b)
-	REGISTER_UI_FUN(ADD_PRO,AddProject,pf_sz_b)
-	REGISTER_UI_FUN(JOIN_GROUP,JoinGroup,pf_ul_ul_b)
-	REGISTER_UI_FUN(LEAVE_GROUP,LeaveGroup,pf_ul_ul_b)
-	REGISTER_UI_FUN(JOIN_PRO,JoinProject,pf_ul_ul_b)
-	REGISTER_UI_FUN(LEAVE_PRO,LeaveProject,pf_ul_ul_b)
-	REGISTER_UI_FUN(SET_POWER,SetPower,pf_ul_ul_b)
-	REGISTER_UI_FUN(DELETE_USER,DelUser,pf_ul_b)
-	REGISTER_UI_FUN(DELETE_GROUP,DelGroup,pf_ul_b)
-	REGISTER_UI_FUN(DELETE_PRO,DelProject,pf_ul_b)
-	REGISTER_UI_FUN(GET_USER_LIST,SetUserList,pf_list_user)
-	REGISTER_UI_FUN(GET_GROUP_LIST,SetGroupList,pf_list_group)
-	REGISTER_UI_FUN(GET_PRO_LIST,SetProList,pf_list_pro)
-}
+//#define REGISTER_UI_FUN(TYPE,FUN_NAME,FUN_TYPE) FUN_NODE *pFunNode = new FUN_NODE ;\
+//	pFunNode->eFunType = FUN_TYPE;\
+//	pFunNode->pf_base =(_pf_base) &IUIToKernel::NotifyUI##FUN_NAME;\
+//	m_mp_fun_type[DEF_SM2S_##TYPE##_RS]  = pFunNode;
+//void CKernel::RegisterNofityUIFun()
+//{
+//	//IUIToKernel::NofityUIJoinProject
+//	REGISTER_UI_FUN(ADD_USER,AddUser,pf_ul_sz_b)
+//	REGISTER_UI_FUN(ADD_GROUP,AddGroup,pf_sz_b)
+//	REGISTER_UI_FUN(ADD_PRO,AddProject,pf_sz_b)
+//	REGISTER_UI_FUN(JOIN_GROUP,JoinGroup,pf_ul_ul_b)
+//	REGISTER_UI_FUN(LEAVE_GROUP,LeaveGroup,pf_ul_ul_b)
+//	REGISTER_UI_FUN(JOIN_PRO,JoinProject,pf_ul_ul_b)
+//	REGISTER_UI_FUN(LEAVE_PRO,LeaveProject,pf_ul_ul_b)
+//	REGISTER_UI_FUN(SET_POWER,SetPower,pf_ul_ul_b)
+//	REGISTER_UI_FUN(DELETE_USER,DelUser,pf_ul_b)
+//	REGISTER_UI_FUN(DELETE_GROUP,DelGroup,pf_ul_b)
+//	REGISTER_UI_FUN(DELETE_PRO,DelProject,pf_ul_b)
+//	REGISTER_UI_FUN(GET_USER_LIST,SetUserList,pf_list_user)
+//	REGISTER_UI_FUN(GET_GROUP_LIST,SetGroupList,pf_list_group)
+//	REGISTER_UI_FUN(GET_PRO_LIST,SetProList,pf_list_pro)
+//}
 bool  CKernel::OpenKernel( IUIToKernel *pUI  )
 {
 	if ( false == CloseKernel() )
@@ -29,8 +29,8 @@ bool  CKernel::OpenKernel( IUIToKernel *pUI  )
 		return false; 
 	}
 	m_pUI = pUI;
-	//注册对应的NotifyUI函数：
-	RegisterNofityUIFun();
+	////注册对应的NotifyUI函数：
+	//RegisterNofityUIFun();
 
 	//初始化网络(本来应该是外部加入观察者集合):
 	m_pNet= new CUDPNet;
@@ -331,5 +331,159 @@ void CKernel::DealStatus( STRU_TASK * pTask   )
 
 bool CKernel::NofityUI( STRU_TASK *pTask  )
 {
-
+	//根据任务中的Rs请求，调用对应的Notify函数:
+	int iType = pTask->pRs->m_nPackType;
+	switch (iType)
+	{
+			case DEF_SM2S_ADD_USER_RS:
+		{
+			STRU_ADD_USER_RS * pRs =  ( STRU_ADD_USER_RS * )pTask->pRs;
+			if( m_pUI )
+			{
+				m_pUI->NotifyUIAddUser(pRs->m_lUserID,(( STRU_ADD_USER_RQ *)pTask->pRq)->m_szPassword,pRs->iResult==enum_success?true:false);
+			}
+		
+		};
+		break ;
+			case DEF_SM2S_ADD_GROUP_RS:
+		{
+			STRU_ADD_GROUP_RS *pRs  = ( STRU_ADD_GROUP_RS * )pTask->pRs;
+			
+			m_pUI->NotifyUIAddGroup((( STRU_ADD_GROUP_RQ *)pTask->pRq)->m_szGroup, pRs->m_iResult==enum_success?true:false);
+		};
+		break ;
+		case DEF_SM2S_ADD_PRO_RS:
+		{
+			STRU_ADD_PRO_RS *pRs  = ( STRU_ADD_PRO_RS * )pTask->pRs;
+			m_pUI->NotifyUIAddProject((( STRU_ADD_PRO_RS *)pTask->pRq)->m_szProName, pRs->m_iResult==enum_success?true:false);
+		};
+		break ;
+			case DEF_SM2S_JOIN_GROUP_RS:
+		{
+				STRU_JOIN_GROUP_RS *pRs  = ( STRU_JOIN_GROUP_RS * )pTask->pRs;
+				m_pUI->NotifyUIJoinGroup(pRs->m_lUserID,pRs->m_lGroupID,pRs->m_iResult==enum_success?true:false);
+		
+		};
+		break ;
+			case DEF_SM2S_LEAVE_GROUP_RS:
+		{
+			STRU_LEAVE_GROUP_RS *pRs  = ( STRU_LEAVE_GROUP_RS * )pTask->pRs;
+				m_pUI->NotifyUILeaveGroup(pRs->m_lUserID,pRs->m_lGroupID,pRs->m_iResult==enum_success?true:false);
+		
+		};
+		break ;
+			case DEF_SM2S_JOIN_PRO_RS:
+		{
+			STRU_JOIN_PRO_RS *pRs  = ( STRU_JOIN_PRO_RS * )pTask->pRs;
+			long id  =  0 ; 
+			if ( 0 == pRs->m_lUserID ) 
+			{
+				id = pRs->m_lGroupID;
+			}
+			m_pUI->NotifyUIJoinProject(id,pRs->m_lProID,pRs->m_ePower,pRs->m_iResult==enum_success?true:false);
+		
+		};
+		break ;
+			case DEF_SM2S_LEAVE_PRO_RS:
+		{
+			STRU_LEAVE_PRO_RS *pRs  = ( STRU_LEAVE_PRO_RS * )pTask->pRs;
+			long id  =  0 ; 
+			if ( 0 == pRs->m_lUserID ) 
+			{
+				id = pRs->m_lGroupID;
+			}
+			m_pUI->NotifyUILeaveProject(id,pRs->m_lProID,pRs->m_iResult==enum_success?true:false);
+		
+		};
+		break ;
+		case DEF_SM2S_SET_POWER_RS:
+		{
+			STRU_SET_POWER_RS *pRs  = ( STRU_SET_POWER_RS * )pTask->pRs;
+			long id  =  0 ; 
+			if ( 0 == pRs->m_lUserID ) 
+			{
+				id = pRs->m_lGroupID;
+			}
+			if( m_pUI )
+			{
+				m_pUI->NotifyUISetPower(id,pRs->m_lProID,pRs->m_ePower,pRs->m_iResult==enum_success?true:false);
+			}
+		};
+		break ;
+		case DEF_SM2S_GET_USER_LIST_RS:
+		{
+			STRU_GET_USER_LIST_RS *pRs  = ( STRU_GET_USER_LIST_RS * )pTask->pRs;
+			list<CUser *>ls_user ;
+			for( int i=0 ;pRs->m_iUserCount;i++)
+			{
+				CUser *pUser = new CUser;
+				pUser->SetUserID(pRs->m_stru_userList[i].m_lUserID);
+				pUser->SetPassword(pRs->m_stru_userList[i].m_szPassWord);
+				ls_user.push_back(pUser);
+			}
+			if ( m_pUI )
+			{
+				m_pUI->NotifyUISetUserList(ls_user);
+			}
+			//如果返回了最大的用户个数，需要进行下一次的拉取，返回true 
+			if ( pRs->m_iUserCount == DEF_MAX_GET_USER_COUNT )
+			{
+				return true ;
+			}
+		};
+		break ;
+		case DEF_SM2S_GET_GROUP_LIST_RS:
+		{
+			STRU_GET_GROUP_LIST_RS *pRs  = ( STRU_GET_GROUP_LIST_RS * )pTask->pRs;
+			list<CGroup *>ls_group;
+			for( int i=0 ;pRs->m_iGroupCount;i++)
+			{
+				CGroup *pGroup = new CGroup;
+				pGroup->SetGroupName(pRs->m_stru_groupList[i].m_szGroup);
+				pGroup->JoinGroup(pRs->m_stru_groupList[i].m_set_user);
+				pGroup->SetGroupID = pRs->m_stru_groupList[i].m_lGroupID;
+				/*pGroup->JoinGroup(pRs->m_stru_groupList[i].m_ls_user;
+				pUser->SetUserID(pRs->m_stru_userList[i].m_lUserID);
+				pUser->SetPassword(pRs->m_stru_userList[i].m_szPassWord);*/
+				ls_group.push_back(pGroup);
+			}
+			if ( m_pUI )
+			{
+				m_pUI->NotifyUISetGroupList(ls_group);
+			}
+			//如果返回了最大的用户个数，需要进行下一次的拉取，返回true 
+			if ( pRs->m_iGroupCount == DEF_MAX_GET_GROUP_COUNT )
+			{
+				return true ;
+			}
+		
+		};
+		break ;
+		case DEF_SM2S_GET_PRO_LIST_RS:
+		{
+			STRU_GET_PRO_LIST_RS *pRs  = ( STRU_GET_PRO_LIST_RS * )pTask->pRs;
+			list<CProject*>ls_project ;
+			for( int i=0 ;pRs->m_iProCount;i++)
+			{
+				CProject  *pPro= new CProject;
+				pPro->SetProID(pRs->m_stru_proList[i].m_lProID);
+				pPro->AddUser( pRs->m_stru_proList[i].m_set_user);
+				pPro->SetProName(pRs->m_stru_proList[i].m_szProName);
+				pPro->m_lCreateTime = pRs->m_stru_proList[i].m_lCreateTime;
+				ls_project.push_back(pPro);
+			}
+			if ( m_pUI )
+			{
+				m_pUI->NotifyUISetProList(ls_project);
+			}
+			//如果返回了最大的用户个数，需要进行下一次的拉取，返回true 
+			if ( pRs->m_iProCount == DEF_MAX_GET_PROJECT_COUNT )
+			{
+				return true ;
+			}
+		
+		};
+		break ;
+	}
+		
 }
